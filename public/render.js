@@ -34,6 +34,8 @@ function readEntityData(results) {
     scene.add(cylinder);
 
     //add planes
+    var plane = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+    scene.add(plane);
   }
 
   console.log("DOE STHIS WORK");
