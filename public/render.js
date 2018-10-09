@@ -32,10 +32,10 @@ function readEntityData(results) {
     cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
     cylinder.position.z = entity_row.y;
     scene.add(cylinder);
-
-    //add planes
-    var plane = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-    scene.add(plane);
+//
+//    //add planes
+//    var plane = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+//    scene.add(plane);
   }
 
   console.log("DOE STHIS WORK");
@@ -43,7 +43,23 @@ function readEntityData(results) {
 
 
 
+
 function handleFileSelect(evt) {
+
+function readRelationData(results) {
+    data = results["data"];
+
+    for (let index = 0; index < data.length; index++) {
+    var entity_row = data[index];
+
+    \\render planes
+    var 
+    }
+
+}
+
+function handleEntityFileSelect(evt) {
+>>>>>>> 3f13575d0d56a1527c1f8d954b5ec13cfed99b60
   var file = evt.target.files[0];
 
   Papa.parse(file, {
@@ -53,9 +69,23 @@ function handleFileSelect(evt) {
   });
 }
 
+function handleRelationFileSelect(evt) {
+  var file = evt.target.files[0];
+
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: true,
+    complete: readRelationData
+  });
+}
+
 $(document).ready(function() {
-  $("#csv-file").change(handleFileSelect);
+  $("#csv-file").change(handleEntityFileSelect);
 });
+
+$(document).ready(function() {
+   $("#csv-file").change(handleRelationFileSelect);
+ });
 
 //camera is automatically put at 0,0,0 so this brings it out from where the cube is
 camera.position.set(20, 2, 5);
