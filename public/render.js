@@ -41,6 +41,8 @@ function readEntityData(results) {
   console.log("DOE STHIS WORK");
 }
 
+
+
 function handleFileSelect(evt) {
   var file = evt.target.files[0];
 
