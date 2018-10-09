@@ -44,7 +44,6 @@ function readEntityData(results) {
 
 
 
-function handleFileSelect(evt) {
 
 function readRelationData(results) {
     data = results["data"];
@@ -56,10 +55,9 @@ function readRelationData(results) {
     var 
     }
 
-}
+
 
 function handleEntityFileSelect(evt) {
->>>>>>> 3f13575d0d56a1527c1f8d954b5ec13cfed99b60
   var file = evt.target.files[0];
 
   Papa.parse(file, {
