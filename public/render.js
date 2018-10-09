@@ -52,8 +52,20 @@ function readRelationData(results) {
     var entity_row = data[index];
 
     \\render planes
-    var 
+    var cylinderWidth = Math.sqrt(Math.pow(entity_row.x3-entity_row.x1,2)+Math.pow(entity_row.y3-entity_row.y1,2));
+    var cylinderHeight = entity_row.z2-entity_row.z1;
+    var planeGeometry = new Three.PlaneBufferGeometry(
+        cylinderWidth,
+        cylinderHeight
+    );
+    var planeMaterial = new Three.MeshNormalMaterial();
+    var plane = THREE.Mesh(planeGeometry, planeMaterial);
+    plane.position.x = (entity_row.x1+entity_row.x3)/2;
+    plane.position.y = (entity_row.y1+entity_row.y3)/2;
+    plane.position.z = cylinderHeight/2;
+    scene.add(plane);
     }
+     console.log("DOE STHIS WORK");
 
 
 
