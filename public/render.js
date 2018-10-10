@@ -38,7 +38,6 @@ function readEntityData(results) {
 //    scene.add(plane);
   }
 
-  console.log("DOE STHIS WORK");
 }
 
 
@@ -51,21 +50,37 @@ function readRelationData(results) {
     for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
-    \\render planes
+    //render planes
     var cylinderWidth = Math.sqrt(Math.pow(entity_row.x3-entity_row.x1,2)+Math.pow(entity_row.y3-entity_row.y1,2));
     var cylinderHeight = entity_row.z2-entity_row.z1;
-    var planeGeometry = new Three.PlaneBufferGeometry(
+    var planeGeometry = new THREE.PlaneBufferGeometry(
         cylinderWidth,
         cylinderHeight
     );
-    var planeMaterial = new Three.MeshNormalMaterial();
-    var plane = THREE.Mesh(planeGeometry, planeMaterial);
-    plane.position.x = (entity_row.x1+entity_row.x3)/2;
-    plane.position.y = cylinderHeight/2;
-    plane.position.z = (entity_row.y1+entity_row.y3)/2;;
+
+    var geometry = new THREE.Geometry();
+
+    geometry.vertices.push(
+    	new THREE.Vector3( entity_row.x1,  entity_row.z1, entity_row.y1),
+    	new THREE.Vector3( entity_row.x2,  entity_row.z2, entity_row.y2),
+    	new THREE.Vector3( entity_row.x4,  entity_row.z4, entity_row.y4),
+      new THREE.Vector3( entity_row.x3,  entity_row.z3, entity_row.y3)
+    );
+    geometry.faces.push( new THREE.Face3(0,1,2) );
+    geometry.faces.push( new THREE.Face3(0,2,3) );
+    geometry.faces.push( new THREE.Face3(2,1,0) );
+    geometry.faces.push( new THREE.Face3(3,2,0) );
+    geometry.computeBoundingSphere();
+
+    var planeMaterial = new THREE.MeshBasicMaterial();
+    var plane = new THREE.Mesh(geometry, planeMaterial);
+    //plane.position.x = (entity_row.x1+entity_row.x3)/2;
+    //plane.position.z = (entity_row.y1+entity_row.y3)/2;
+    //plane.position.y = cylinderHeight/2;
+    //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
+
     scene.add(plane);
     }
-     console.log("DOE STHIS WORK");
 
 
 
@@ -90,11 +105,11 @@ function handleRelationFileSelect(evt) {
 }
 
 $(document).ready(function() {
-  $("#csv-file").change(handleEntityFileSelect);
+  $("#entity-csv-file").change(handleEntityFileSelect);
 });
 
 $(document).ready(function() {
-   $("#csv-file").change(handleRelationFileSelect);
+   $("#relationship-csv-file").change(handleRelationFileSelect);
  });
 
 //camera is automatically put at 0,0,0 so this brings it out from where the cube is
