@@ -58,7 +58,7 @@ function readRelationData(results) {
     var plane = THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.x = (entity_row.x1+entity_row.x3)/2;
     plane.position.y = cylinderHeight/2;
-    plane.position.z = cylinderHeight/2(entity_row.y1+entity_row.y3)/2;;
+    plane.position.z = (entity_row.y1+entity_row.y3)/2;;
     scene.add(plane);
     }
      console.log("DOE STHIS WORK");
