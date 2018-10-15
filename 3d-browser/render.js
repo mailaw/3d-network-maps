@@ -2,11 +2,16 @@
 var scene = new THREE.Scene();
 var aspect = window.innerWidth / window.innerHeight;
 
+var local_canvas = document.getElementById("meter");
+
 //field of view, aspect ratio, near & far clipping plane
 var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
+//orbital controls
+var controls = new THREE.OrbitControls( camera, local_canvas);
+
 //This can be swapped out later for VR
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({canvas:local_canvas});
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -108,17 +113,19 @@ $(document).ready(function() {
  });
 
 //camera is automatically put at 0,0,0 so this brings it out from where the cube is
-camera.position.set(20, 2, 5);
+camera.position.set(120, 15, 5,0,0,100);
 camera.lookAt(scene.position);
+controls.update();
 
 var animate = function() {
   requestAnimationFrame(animate);
 
-  var speed = Date.now() * 0.0005;
-  camera.position.x = Math.cos(speed) * 10;
-  camera.position.z = Math.sin(speed) * 10;
+  var speed = Date.now() * 0.0005 / 2;
+  //camera.position.x = Math.cos(speed) * 10;
+  //camera.position.z = Math.sin(speed) * 10;
 
-  camera.lookAt(scene.position); //0,0,0
+  //camera.lookAt(scene.position); //0,0,0
+  controls.update();
   renderer.render(scene, camera);
 };
 

@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/97/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.4/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
     <link rel="shortcut icon" href="/icons/icon-48x48.png" />
     <meta name="theme-color" content="#663399" />
     <link rel="stylesheet" href="styles.css">
@@ -27,6 +29,8 @@
         <input type="file" id="relationship-csv-file" name="relationship_file" />
     </div>
     <div class="viz">
+        <canvas id="meter" width="5000" height="5000"></canvas>
+
         <script src="render.js"></script>
     </div>
 </body>
