@@ -2,7 +2,7 @@
 var scene = new THREE.Scene();
 var aspect = window.innerWidth / window.innerHeight;
 
-var local_canvas = document.getElementById("meter");
+var local_canvas = document.getElementById("vis-window");
 
 //field of view, aspect ratio, near & far clipping plane
 var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
