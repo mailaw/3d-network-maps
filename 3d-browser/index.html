@@ -13,6 +13,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.4/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <!--Semantic UI CDNs-->
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script>
 
     <link rel="shortcut icon" href="/icons/icon-48x48.png" />
     <meta name="theme-color" content="#663399" />
@@ -25,8 +30,17 @@
         <h2>A way to visualize the evolution of human networks</h2>
     </div>
     <div class="input-file">
-        <input type="file" id="entity-csv-file" name="entity_file" />
-        <input type="file" id="relationship-csv-file" name="relationship_file" />
+        <input type="file" (change)="fileEvent($event)" class="inputfile" id="entity-csv-file" name="entity_file" />
+        <label for="entity_file" class="ui huge red right floated button">
+            <i class="ui upload icon"></i> 
+            Upload entities
+        </label>
+        <input type="file" (change)="fileEvent($event)" class="inputfile" id="relationship-csv-file" name="relationship_file" />
+        <label for="relationship_file" class="ui huge red right floated button">
+            <i class="ui upload icon"></i> 
+            Upload relationships
+        </label>
+                
     </div>
     <div class="viz">
         <canvas id="meter" width="5000" height="5000"></canvas>
