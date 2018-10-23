@@ -57,3 +57,7 @@ header h1{
   margin: 0px auto;
   overflow-x: hidden;
 }
+
+p{
+    font-size: 1.5em;
+}
