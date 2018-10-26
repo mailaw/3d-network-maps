@@ -1,94 +1,29 @@
-// must have scene, camera, renderer
-var scene = new THREE.Scene();
-var aspect = window.innerWidth / window.innerHeight;
+//global vars
+var camera, scene, renderer, local_canvas, controls;
+//custom vars
+var plane, planeOpacity;
+var cylinder, cylinderRadius;
 
-var local_canvas = document.getElementById("vis-window");
-
-//field of view, aspect ratio, near & far clipping plane
-var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-
-//orbital controls
-var controls = new THREE.OrbitControls( camera, local_canvas);
-
-//This can be swapped out later for VR
-var renderer = new THREE.WebGLRenderer({canvas:local_canvas});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
+var parameters = {
+  radiusTop: 0.2,
+  //radiusBottom: 0.5,
+  opacity: 0.8,
+  visible: true,
+  reset: function() {
+    resetPlane();
+    resetRadius();
+  }
+};
+var gui;
 var data;
 
-function readEntityData(results) {
-  data = results["data"];
+$(document).ready(function() {
+  $("#entity-csv-file").change(handleEntityFileSelect);
+});
 
-  for (let index = 0; index < data.length; index++) {
-    var entity_row = data[index];
-
-    //render cylinders
-    var cylinderHeight = entity_row.z2 - entity_row.z1;
-    var cylinderGeometry = new THREE.CylinderBufferGeometry(
-      0.2,
-      0.2,
-      cylinderHeight
-    );
-    var cylinderMaterial = new THREE.MeshNormalMaterial();
-    var cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-    cylinder.position.x = entity_row.x;
-    cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
-    cylinder.position.z = entity_row.y;
-    scene.add(cylinder);
-//
-//    //add planes
-//    var plane = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-//    scene.add(plane);
-  }
-
-}
-
-function readRelationData(results) {
-    data = results["data"];
-
-    for (let index = 0; index < data.length; index++) {
-    var entity_row = data[index];
-
-    //render planes
-    var cylinderWidth = Math.sqrt(Math.pow(entity_row.x3-entity_row.x1,2)+Math.pow(entity_row.y3-entity_row.y1,2));
-    var cylinderHeight = entity_row.z2-entity_row.z1;
-    var planeGeometry = new THREE.PlaneBufferGeometry(
-        cylinderWidth,
-        cylinderHeight
-    );
-
-    var geometry = new THREE.Geometry();
-
-    geometry.vertices.push(
-    	new THREE.Vector3( entity_row.x1,  entity_row.z1, entity_row.y1),
-    	new THREE.Vector3( entity_row.x2,  entity_row.z2, entity_row.y2),
-    	new THREE.Vector3( entity_row.x4,  entity_row.z4, entity_row.y4),
-      new THREE.Vector3( entity_row.x3,  entity_row.z3, entity_row.y3)
-    );
-    geometry.faces.push( new THREE.Face3(0,1,2) );
-    geometry.faces.push( new THREE.Face3(0,2,3) );
-    geometry.faces.push( new THREE.Face3(2,1,0) );
-    geometry.faces.push( new THREE.Face3(3,2,0) );
-    geometry.computeBoundingSphere();
-
-    var planeMaterial = new THREE.MeshLambertMaterial( {
-						color: 0x1cff44,
-						emissive: 0x1cff44,
-                        transparent: true,
-                        opacity: 0.6,
-        
-					} );
-    var plane = new THREE.Mesh(geometry, planeMaterial);
-    //plane.position.x = (entity_row.x1+entity_row.x3)/2;
-    //plane.position.z = (entity_row.y1+entity_row.y3)/2;
-    //plane.position.y = cylinderHeight/2;
-    //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
-    scene.add(plane);
-    }
-
-}
+$(document).ready(function() {
+  $("#relationship-csv-file").change(handleRelationFileSelect);
+});
 
 function handleEntityFileSelect(evt) {
   var file = evt.target.files[0];
@@ -110,29 +45,172 @@ function handleRelationFileSelect(evt) {
   });
 }
 
-$(document).ready(function() {
-  $("#entity-csv-file").change(handleEntityFileSelect);
-});
+function readEntityData(results) {
+  data = results["data"];
+  //var radiusVar = 0.5;
 
-$(document).ready(function() {
-   $("#relationship-csv-file").change(handleRelationFileSelect);
- });
+  for (let index = 0; index < data.length; index++) {
+    var entity_row = data[index];
 
-//camera is automatically put at 0,0,0 so this brings it out from where the cube is
-camera.position.set(120, 15, 5,0,0,100);
-camera.lookAt(scene.position);
-controls.update();
+    //render cylinders
+    var cylinderHeight = entity_row.z2 - entity_row.z1;
+    var geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, cylinderHeight);
+    var material = new THREE.MeshNormalMaterial();
+    var cylinder = new THREE.Mesh(geometry, material);
+    cylinder.position.x = entity_row.x;
+    cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
+    cylinder.position.z = entity_row.y;
+    scene.add(cylinder);
+    console.log(cylinder.geometry.parameters.radiusTop);
+  }
 
-var animate = function() {
-  requestAnimationFrame(animate);
+  //currently: properly changing and registering
+  cylinderRadius.onChange(function(value) {
+    cylinder.geometry.parameters.radiusTop = value;
+    //console.log(cylinder.geometry.parameters.radiusTop);
+  });
+  cylinder.geometry.parameters.radiusTop = 0.5;
+  console.log(cylinder.geometry.parameters.radiusTop);
+  //updateRadius();
+}
 
-  var speed = Date.now() * 0.0005 / 2;
-  //camera.position.x = Math.cos(speed) * 10;
-  //camera.position.z = Math.sin(speed) * 10;
+function readRelationData(results) {
+  data = results["data"];
 
-  //camera.lookAt(scene.position); //0,0,0
-  controls.update();
-  renderer.render(scene, camera);
-};
+  var material = new THREE.MeshLambertMaterial({
+    color: 0x1cff44,
+    emissive: 0x1cff44,
+    transparent: true,
+    opacity: 0.8
+  });
 
+  for (let index = 0; index < data.length; index++) {
+    var entity_row = data[index];
+
+    /*is this all old code?
+    var cylinderWidth = Math.sqrt(
+      Math.pow(entity_row.x3 - entity_row.x1, 2) +
+        Math.pow(entity_row.y3 - entity_row.y1, 2)
+    );
+    var cylinderHeight = entity_row.z2 - entity_row.z1;
+    var planeGeometry = new THREE.PlaneBufferGeometry(
+      cylinderWidth,
+      cylinderHeight
+    );*/
+
+    var geometry = new THREE.Geometry();
+
+    geometry.vertices.push(
+      new THREE.Vector3(entity_row.x1, entity_row.z1, entity_row.y1),
+      new THREE.Vector3(entity_row.x2, entity_row.z2, entity_row.y2),
+      new THREE.Vector3(entity_row.x4, entity_row.z4, entity_row.y4),
+      new THREE.Vector3(entity_row.x3, entity_row.z3, entity_row.y3)
+    );
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.faces.push(new THREE.Face3(0, 2, 3));
+    geometry.faces.push(new THREE.Face3(2, 1, 0));
+    geometry.faces.push(new THREE.Face3(3, 2, 0));
+    geometry.computeBoundingSphere();
+
+    var plane = new THREE.Mesh(geometry, material);
+    //plane.position.x = (entity_row.x1+entity_row.x3)/2;
+    //plane.position.z = (entity_row.y1+entity_row.y3)/2;
+    //plane.position.y = cylinderHeight/2;
+    //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
+    scene.add(plane);
+  }
+
+  planeOpacity.onChange(function(value) {
+    plane.material.opacity = value;
+  });
+  updatePlane();
+}
+
+init();
 animate();
+
+function init() {
+  // must have scene, camera, renderer
+  scene = new THREE.Scene();
+  var aspect = window.innerWidth / window.innerHeight;
+
+  local_canvas = document.getElementById("vis-window");
+
+  //field of view, aspect ratio, near & far clipping plane
+  camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+  //camera is automatically put at 0,0,0 so this brings it out from where the cube is
+  camera.position.set(120, 15, 5, 0, 0, 100);
+  camera.lookAt(scene.position);
+  //orbital controls
+  controls = new THREE.OrbitControls(camera, local_canvas);
+
+  //This can be swapped out later for VR
+  renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  /*test cube
+  var cubeGeometry = new THREE.CubeGeometry(100, 100, 100);
+  var cubeMaterial = new THREE.MeshLambertMaterial({
+    color: 0x1cff44,
+    emissive: 0x1cff44,
+    transparent: true,
+    opacity: 1
+  });
+  var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  scene.add(cube);*/
+
+  //Creating the dat.GUI
+  gui = new dat.GUI();
+
+  var planeFolder = gui.addFolder("Planes");
+
+  planeOpacity = planeFolder
+    .add(parameters, "opacity")
+    .min(0)
+    .max(1)
+    .step(0.01)
+    .name("Opacity")
+    .listen();
+  planeFolder.open();
+
+  var cylinderFolder = gui.addFolder("Cylinders");
+
+  cylinderRadius = cylinderFolder
+    .add(parameters, "radiusTop")
+    .min(0)
+    .max(1)
+    .step(0.1)
+    .name("Radius")
+    .listen();
+
+  cylinderFolder.open();
+  gui.open();
+}
+
+function updatePlane() {
+  plane.material.opacity = parameters.opacity;
+  plane.material.transparent = true;
+}
+function resetPlane() {
+  parameters.opacity = 1;
+  parameters.visible = true;
+  updatePlane();
+}
+
+function updateRadius() {
+  cylinder.geometry.parameters.radiusTop = parameters.radiusTop;
+  //cylinder.geometry.parameters.radiusBottom = parameters.radiusBottom;
+}
+function resetRadius() {
+  parameters.radiusTop = 0.1;
+  //parameters.radiusBottom = 0.1;
+  updateRadius();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+  controls.update();
+}
