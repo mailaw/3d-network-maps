@@ -155,6 +155,8 @@ animate();
 function init() {
   // must have scene, camera, renderer
   scene = new THREE.Scene();
+  scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+  scene.fog = new THREE.Fog( scene.background, 1, 5000 );
   var aspect = window.innerWidth / window.innerHeight;
 
   local_canvas = document.getElementById("vis-window");
@@ -162,28 +164,59 @@ function init() {
   //field of view, aspect ratio, near & far clipping plane
   camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
   //camera is automatically put at 0,0,0 so this brings it out from where the cube is
-  camera.position.set(120, 15, 5, 0, 0, 100);
+  camera.position.set(30, 15, 0);
   camera.lookAt(scene.position);
-  //orbital controls
+  scene.add(camera);
+
+  // Orbital Controls
   controls = new THREE.OrbitControls(camera, local_canvas);
 
   //This can be swapped out later for VR
   renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
-  renderer.setPixelRatio(2); //inscreases internal render resolution
+  //renderer.setPixelRatio(2); //inscreases internal render resolution
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  /*test cube
-  var cubeGeometry = new THREE.CubeGeometry(100, 100, 100);
-  var cubeMaterial = new THREE.MeshLambertMaterial({
-    color: 0x1cff44,
-    emissive: 0x1cff44,
-    transparent: true,
-    opacity: 1
-  });
-  var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-  scene.add(cube);*/
+  // Lights
+  hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+  hemiLight.color.setHSL( 0.6, 1, 0.6 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.position.set( 0, 50, 0 );
+  scene.add( hemiLight );
+  //hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+  //scene.add( hemiLightHelper );
+
+  // Directional Light
+  dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  dirLight.color.setHSL( 0.1, 1, 0.95 );
+  dirLight.position.set( -1, 1.75, 1 );
+  dirLight.position.multiplyScalar( 30 );
+  scene.add( dirLight );
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
+  var d = 50;
+  dirLight.shadow.camera.left = -d;
+  dirLight.shadow.camera.right = d;
+  dirLight.shadow.camera.top = d;
+  dirLight.shadow.camera.bottom = -d;
+  dirLight.shadow.camera.far = 3500;
+  dirLight.shadow.bias = -0.0001;
+  // dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
+  // scene.add( dirLightHeper );
+
+  // GROUND
+  var groundGeo = new THREE.PlaneBufferGeometry( 10000, 10000 );
+  var groundMat = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x050505 } );
+  groundMat.color.setHSL( 0.095, 1, 0.75 );
+  var ground = new THREE.Mesh( groundGeo, groundMat );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.y = -33;
+  scene.add( ground );
+  ground.receiveShadow = true;
+
+
 
   //Creating the dat.GUI
   gui = new dat.GUI();
