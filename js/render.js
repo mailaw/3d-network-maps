@@ -255,7 +255,7 @@ function init() {
     .min(0)
     .max(255)
     .step(1)
-    .name("Background Red Channel")
+    .name("Red Channel")
     .listen();
 
   scene_red_channel.onChange(function(value){
@@ -269,7 +269,7 @@ function init() {
     .min(0)
     .max(255)
     .step(1)
-    .name("Background Green Channel")
+    .name("Green Channel")
     .listen();
 
   scene_green_channel.onChange(function(value){
@@ -283,7 +283,7 @@ function init() {
     .min(0)
     .max(255)
     .step(1)
-    .name("Background Blue Channel")
+    .name("Blue Channel")
     .listen();
 
   scene_blue_channel.onChange(function(value){
