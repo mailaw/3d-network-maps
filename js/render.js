@@ -4,11 +4,24 @@ var camera, scene, renderer, local_canvas, controls;
 var plane, planeOpacity;
 var cylinder, cylinderRadius;
 
+//scene data
+var cylinder_list = [];
+var cylinder_postion_list = [];
+
+var plane_list = [];
+var plane_position_list = [];
+
+
+
 var parameters = {
   radiusTop: 0.2,
   //radiusBottom: 0.5,
   opacity: 0.8,
   visible: true,
+  scale: 1.0,
+  scene_red_channel: 0,
+  scene_green_channel: 0,
+  scene_blue_channel: 0,
   reset: function() {
     resetPlane();
     resetRadius();
@@ -60,17 +73,19 @@ function readEntityData(results) {
     cylinder.position.x = entity_row.x;
     cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
     cylinder.position.z = entity_row.y;
+    cylinder_postion_list.push([cylinder.position.x, cylinder.position.y, cylinder.position.z]);
     scene.add(cylinder);
-    console.log(cylinder.geometry.parameters.radiusTop);
+    cylinder_list.push(cylinder);
+    //console.log(cylinder.geometry.parameters.radiusTop);
   }
 
   //currently: properly changing and registering
-  cylinderRadius.onChange(function(value) {
-    cylinder.geometry.parameters.radiusTop = value;
-    //console.log(cylinder.geometry.parameters.radiusTop);
-  });
+  // cylinderRadius.onChange(function(value) {
+  //   cylinder.geometry.parameters.radiusTop = value;
+  //   //console.log(cylinder.geometry.parameters.radiusTop);
+  // });
   cylinder.geometry.parameters.radiusTop = 0.5;
-  console.log(cylinder.geometry.parameters.radiusTop);
+  //console.log(cylinder.geometry.parameters.radiusTop);
   //updateRadius();
 }
 
@@ -106,6 +121,12 @@ function readRelationData(results) {
       new THREE.Vector3(entity_row.x4, entity_row.z4, entity_row.y4),
       new THREE.Vector3(entity_row.x3, entity_row.z3, entity_row.y3)
     );
+
+    plane_position_list.push([entity_row.x1, entity_row.z1, entity_row.y1,
+                              entity_row.x2, entity_row.z2, entity_row.y2,
+                              entity_row.x4, entity_row.z4, entity_row.y4,
+                              entity_row.x3, entity_row.z3, entity_row.y3])
+
     geometry.faces.push(new THREE.Face3(0, 1, 2));
     geometry.faces.push(new THREE.Face3(0, 2, 3));
     geometry.faces.push(new THREE.Face3(2, 1, 0));
@@ -118,12 +139,14 @@ function readRelationData(results) {
     //plane.position.y = cylinderHeight/2;
     //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
     scene.add(plane);
+    plane_list.push(plane);
   }
 
   planeOpacity.onChange(function(value) {
     plane.material.opacity = value;
+    //console.log(scene);
   });
-  updatePlane();
+  //updatePlane();
 }
 
 init();
@@ -146,6 +169,7 @@ function init() {
 
   //This can be swapped out later for VR
   renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
+  renderer.setPixelRatio(2); //inscreases internal render resolution
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
@@ -181,11 +205,99 @@ function init() {
     .add(parameters, "radiusTop")
     .min(0)
     .max(1)
-    .step(0.1)
+    .step(0.05)
     .name("Radius")
     .listen();
 
   cylinderFolder.open();
+
+  cylinderRadius.onChange(function(value) {
+    for(let i = 0; i < cylinder_list.length; i++){
+      cylinder_list[i].geometry = new THREE.CylinderBufferGeometry(value,value,
+        cylinder_list[i].geometry.parameters.height);
+    }
+  });
+
+
+  var globalFolder = gui.addFolder("Global Options");
+
+  scaleFactor = globalFolder
+    .add(parameters, "scale")
+    .min(0)
+    .max(10)
+    .step(0.1)
+    .name("Scale")
+    .listen();
+
+
+
+  scaleFactor.onChange(function(value) {
+    //cylinder expansion
+    for(let i = 0; i < cylinder_list.length; i++){
+      cylinder_list[i].position.x = cylinder_postion_list[i][0] * value;
+      cylinder_list[i].position.z = cylinder_postion_list[i][2] * value;
+    }
+
+    //plane expansion
+    for(let i = 0; i < plane_list.length; i++){
+      for(let j = 0; j < 4; j++){
+        plane_list[i].geometry.vertices[j].x = plane_position_list[i][j*3] * value;
+        plane_list[i].geometry.vertices[j].z = plane_position_list[i][j*3 + 2] * value;
+      }
+      plane_list[i].geometry.verticesNeedUpdate = true;
+    }
+  });
+
+  var background_color_folder = globalFolder.addFolder("Background Color");
+
+  scene_red_channel = background_color_folder
+    .add(parameters, "scene_red_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Red Channel")
+    .listen();
+
+  scene_red_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  scene_green_channel = background_color_folder
+    .add(parameters, "scene_green_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Green Channel")
+    .listen();
+
+  scene_green_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  scene_blue_channel = background_color_folder
+    .add(parameters, "scene_blue_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Blue Channel")
+    .listen();
+
+  scene_blue_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  background_color_folder.open();
+
+
+  globalFolder.open();
+
+
   gui.open();
 }
 
