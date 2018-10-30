@@ -19,6 +19,9 @@ var parameters = {
   opacity: 0.8,
   visible: true,
   scale: 1.0,
+  scene_red_channel: 0,
+  scene_green_channel: 0,
+  scene_blue_channel: 0,
   reset: function() {
     resetPlane();
     resetRadius();
@@ -216,9 +219,9 @@ function init() {
   });
 
 
-  var scaleFolder = gui.addFolder("Global Options");
+  var globalFolder = gui.addFolder("Global Options");
 
-  scaleFactor = scaleFolder
+  scaleFactor = globalFolder
     .add(parameters, "scale")
     .min(0)
     .max(10)
@@ -226,7 +229,6 @@ function init() {
     .name("Scale")
     .listen();
 
-  scaleFolder.open();
 
 
   scaleFactor.onChange(function(value) {
@@ -246,6 +248,54 @@ function init() {
     }
   });
 
+  var background_color_folder = globalFolder.addFolder("Background Color");
+
+  scene_red_channel = background_color_folder
+    .add(parameters, "scene_red_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Background Red Channel")
+    .listen();
+
+  scene_red_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  scene_green_channel = background_color_folder
+    .add(parameters, "scene_green_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Background Green Channel")
+    .listen();
+
+  scene_green_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  scene_blue_channel = background_color_folder
+    .add(parameters, "scene_blue_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Background Blue Channel")
+    .listen();
+
+  scene_blue_channel.onChange(function(value){
+    scene.background = new THREE.Color(parameters.scene_red_channel/255,
+                                       parameters.scene_green_channel/255,
+                                       parameters.scene_blue_channel/255);
+  });
+
+  background_color_folder.open();
+
+
+  globalFolder.open();
 
 
   gui.open();
