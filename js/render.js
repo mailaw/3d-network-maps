@@ -102,17 +102,6 @@ function readRelationData(results) {
   for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
-    /*is this all old code?
-    var cylinderWidth = Math.sqrt(
-      Math.pow(entity_row.x3 - entity_row.x1, 2) +
-        Math.pow(entity_row.y3 - entity_row.y1, 2)
-    );
-    var cylinderHeight = entity_row.z2 - entity_row.z1;
-    var planeGeometry = new THREE.PlaneBufferGeometry(
-      cylinderWidth,
-      cylinderHeight
-    );*/
-
     var geometry = new THREE.Geometry();
 
     geometry.vertices.push(
@@ -216,10 +205,12 @@ function init() {
   scene.add( ground );
   ground.receiveShadow = true;
 
-
-
-  //Creating the dat.GUI
-  gui = new dat.GUI();
+  /////dat.GUI MENU
+  //
+  gui = new dat.GUI({autoPlace: false});
+  gui.domElement.id = 'gui-position';
+  var customContainer = document.getElementById('gui-position');
+  customContainer.appendChild(gui.domElement);
 
   var planeFolder = gui.addFolder("Planes");
 
@@ -326,11 +317,7 @@ function init() {
   });
 
   background_color_folder.open();
-
-
   globalFolder.open();
-
-
   gui.open();
 }
 
