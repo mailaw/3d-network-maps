@@ -10,8 +10,10 @@
 
 #canvas-div{
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 80% !important;
+  height: 80% !important;
+  padding: 30px !important;
+  margin-left: 140px !important;
 }
 
 #canvas-div canvas{
@@ -20,6 +22,7 @@
 }
 
 canvas#vis-window {
+  position: relative !important;
   width: 80% !important;
   height: 80% !important;
   padding: 30px !important;
@@ -30,7 +33,7 @@ canvas#vis-window {
 #gui-position {
   position: absolute;
   top: 3em;
-  right:22em;
+  right:150px;
   z-index: 10;
 }
 
