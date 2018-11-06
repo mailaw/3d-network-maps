@@ -11,8 +11,6 @@ var cylinder_postion_list = [];
 var plane_list = [];
 var plane_position_list = [];
 
-
-
 var parameters = {
   radiusTop: 0.2,
   //radiusBottom: 0.5,
@@ -73,7 +71,11 @@ function readEntityData(results) {
     cylinder.position.x = entity_row.x;
     cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
     cylinder.position.z = entity_row.y;
-    cylinder_postion_list.push([cylinder.position.x, cylinder.position.y, cylinder.position.z]);
+    cylinder_postion_list.push([
+      cylinder.position.x,
+      cylinder.position.y,
+      cylinder.position.z
+    ]);
     scene.add(cylinder);
     cylinder_list.push(cylinder);
     //console.log(cylinder.geometry.parameters.radiusTop);
@@ -111,10 +113,20 @@ function readRelationData(results) {
       new THREE.Vector3(entity_row.x3, entity_row.z3, entity_row.y3)
     );
 
-    plane_position_list.push([entity_row.x1, entity_row.z1, entity_row.y1,
-                              entity_row.x2, entity_row.z2, entity_row.y2,
-                              entity_row.x4, entity_row.z4, entity_row.y4,
-                              entity_row.x3, entity_row.z3, entity_row.y3])
+    plane_position_list.push([
+      entity_row.x1,
+      entity_row.z1,
+      entity_row.y1,
+      entity_row.x2,
+      entity_row.z2,
+      entity_row.y2,
+      entity_row.x4,
+      entity_row.z4,
+      entity_row.y4,
+      entity_row.x3,
+      entity_row.z3,
+      entity_row.y3
+    ]);
 
     geometry.faces.push(new THREE.Face3(0, 1, 2));
     geometry.faces.push(new THREE.Face3(0, 2, 3));
@@ -144,8 +156,8 @@ animate();
 function init() {
   // must have scene, camera, renderer
   scene = new THREE.Scene();
-  scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
-  scene.fog = new THREE.Fog( scene.background, 1, 5000 );
+  scene.background = new THREE.Color().setHSL(0.6, 0, 1);
+  scene.fog = new THREE.Fog(scene.background, 1, 5000);
   var aspect = window.innerWidth / window.innerHeight;
 
   local_canvas = document.getElementById("vis-window");
@@ -168,20 +180,20 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   // Lights
-  hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-  hemiLight.color.setHSL( 0.6, 1, 0.6 );
-  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-  hemiLight.position.set( 0, 50, 0 );
-  scene.add( hemiLight );
+  hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+  hemiLight.color.setHSL(0.6, 1, 0.6);
+  hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+  hemiLight.position.set(0, 50, 0);
+  //scene.add( hemiLight );
   //hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
   //scene.add( hemiLightHelper );
 
   // Directional Light
-  dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-  dirLight.color.setHSL( 0.1, 1, 0.95 );
-  dirLight.position.set( -1, 1.75, 1 );
-  dirLight.position.multiplyScalar( 30 );
-  scene.add( dirLight );
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.color.setHSL(0.1, 1, 0.95);
+  dirLight.position.set(-1, 1.75, 1);
+  dirLight.position.multiplyScalar(30);
+  scene.add(dirLight);
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 2048;
   dirLight.shadow.mapSize.height = 2048;
@@ -196,20 +208,23 @@ function init() {
   // scene.add( dirLightHeper );
 
   // GROUND
-  var groundGeo = new THREE.PlaneBufferGeometry( 10000, 10000 );
-  var groundMat = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x050505 } );
-  groundMat.color.setHSL( 0.095, 1, 0.75 );
-  var ground = new THREE.Mesh( groundGeo, groundMat );
-  ground.rotation.x = -Math.PI/2;
+  var groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
+  var groundMat = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    specular: 0x050505
+  });
+  groundMat.color.setHSL(0.095, 1, 0.75);
+  var ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
   ground.position.y = -33;
-  scene.add( ground );
+  scene.add(ground);
   ground.receiveShadow = true;
 
   /////dat.GUI MENU
   //
-  gui = new dat.GUI({autoPlace: false});
-  gui.domElement.id = 'gui-position';
-  var customContainer = document.getElementById('gui-position');
+  gui = new dat.GUI({ autoPlace: false });
+  gui.domElement.id = "gui-position";
+  var customContainer = document.getElementById("gui-position");
   customContainer.appendChild(gui.domElement);
 
   var planeFolder = gui.addFolder("Planes");
@@ -236,12 +251,14 @@ function init() {
   cylinderFolder.open();
 
   cylinderRadius.onChange(function(value) {
-    for(let i = 0; i < cylinder_list.length; i++){
-      cylinder_list[i].geometry = new THREE.CylinderBufferGeometry(value,value,
-        cylinder_list[i].geometry.parameters.height);
+    for (let i = 0; i < cylinder_list.length; i++) {
+      cylinder_list[i].geometry = new THREE.CylinderBufferGeometry(
+        value,
+        value,
+        cylinder_list[i].geometry.parameters.height
+      );
     }
   });
-
 
   var globalFolder = gui.addFolder("Global Options");
 
@@ -253,20 +270,20 @@ function init() {
     .name("Scale")
     .listen();
 
-
-
   scaleFactor.onChange(function(value) {
     //cylinder expansion
-    for(let i = 0; i < cylinder_list.length; i++){
+    for (let i = 0; i < cylinder_list.length; i++) {
       cylinder_list[i].position.x = cylinder_postion_list[i][0] * value;
       cylinder_list[i].position.z = cylinder_postion_list[i][2] * value;
     }
 
     //plane expansion
-    for(let i = 0; i < plane_list.length; i++){
-      for(let j = 0; j < 4; j++){
-        plane_list[i].geometry.vertices[j].x = plane_position_list[i][j*3] * value;
-        plane_list[i].geometry.vertices[j].z = plane_position_list[i][j*3 + 2] * value;
+    for (let i = 0; i < plane_list.length; i++) {
+      for (let j = 0; j < 4; j++) {
+        plane_list[i].geometry.vertices[j].x =
+          plane_position_list[i][j * 3] * value;
+        plane_list[i].geometry.vertices[j].z =
+          plane_position_list[i][j * 3 + 2] * value;
       }
       plane_list[i].geometry.verticesNeedUpdate = true;
     }
@@ -282,10 +299,12 @@ function init() {
     .name("Red Channel")
     .listen();
 
-  scene_red_channel.onChange(function(value){
-    scene.background = new THREE.Color(parameters.scene_red_channel/255,
-                                       parameters.scene_green_channel/255,
-                                       parameters.scene_blue_channel/255);
+  scene_red_channel.onChange(function(value) {
+    scene.background = new THREE.Color(
+      parameters.scene_red_channel / 255,
+      parameters.scene_green_channel / 255,
+      parameters.scene_blue_channel / 255
+    );
   });
 
   scene_green_channel = background_color_folder
@@ -296,10 +315,12 @@ function init() {
     .name("Green Channel")
     .listen();
 
-  scene_green_channel.onChange(function(value){
-    scene.background = new THREE.Color(parameters.scene_red_channel/255,
-                                       parameters.scene_green_channel/255,
-                                       parameters.scene_blue_channel/255);
+  scene_green_channel.onChange(function(value) {
+    scene.background = new THREE.Color(
+      parameters.scene_red_channel / 255,
+      parameters.scene_green_channel / 255,
+      parameters.scene_blue_channel / 255
+    );
   });
 
   scene_blue_channel = background_color_folder
@@ -310,10 +331,12 @@ function init() {
     .name("Blue Channel")
     .listen();
 
-  scene_blue_channel.onChange(function(value){
-    scene.background = new THREE.Color(parameters.scene_red_channel/255,
-                                       parameters.scene_green_channel/255,
-                                       parameters.scene_blue_channel/255);
+  scene_blue_channel.onChange(function(value) {
+    scene.background = new THREE.Color(
+      parameters.scene_red_channel / 255,
+      parameters.scene_green_channel / 255,
+      parameters.scene_blue_channel / 255
+    );
   });
 
   background_color_folder.open();
