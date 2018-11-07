@@ -111,6 +111,15 @@ function handleRelationFileSelect(evt) {
 }
 
 $(document).ready(function() {
+  console.log("HERE");
+  $.ajax({
+   url: "csv_to_model.py",
+   type:'POST',
+   success: function(response) {
+    console.log("Success");
+     // here you do whatever you want with the response variable
+   }
+});
   $("#entity-csv-file").change(handleEntityFileSelect);
 });
 
