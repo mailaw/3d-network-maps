@@ -20,6 +20,9 @@ var parameters = {
   scene_red_channel: 0,
   scene_green_channel: 0,
   scene_blue_channel: 0,
+  cylinder_red_channel: 0,
+  cylinder_blue_channel: 0,
+  cylinder_green_channel: 0,
   reset: function() {
     resetPlane();
     resetRadius();
@@ -66,7 +69,8 @@ function readEntityData(results) {
     //render cylinders
     var cylinderHeight = entity_row.z2 - entity_row.z1;
     var geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, cylinderHeight);
-    var material = new THREE.MeshLambertMaterial({color: 0xff0000});
+    //var cylinder_color = new THREE.Color("rgb(255, 0, 0)");
+    var material = new THREE.MeshLambertMaterial({color: 0xff0000 });
     var cylinder = new THREE.Mesh(geometry, material);
     //cylinder.material.color.setHex( 0xADD8E6 );
     cylinder.castShadow = true;
@@ -149,7 +153,6 @@ function readRelationData(results) {
 
   planeOpacity.onChange(function(value) {
     plane.material.opacity = value;
-    //console.log(scene);
   });
   //updatePlane();
 }
@@ -158,7 +161,7 @@ init();
 animate();
 
 function init() {
-  // must have scene, camera, renderer
+  // Note: must have scene, camera, renderer
 
   //SCENE
   scene = new THREE.Scene();
@@ -238,6 +241,61 @@ function init() {
 
   var cylinderFolder = gui.addFolder("Cylinders");
 
+  //cylinder color control
+  cylinder_red_channel = cylinderFolder
+    .add(parameters, "cylinder_red_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Red")
+    .listen();
+
+    cylinder_red_channel.onChange(function(value) {
+      for (let i = 0; i < cylinder_list.length; i++) {
+        cylinder_list[i].material.color.setRGB(
+          parameters.cylinder_red_channel / 255,
+          parameters.cylinder_green_channel / 255,
+          parameters.cylinder_blue_channel / 255
+        );
+      }
+  });
+
+  cylinder_green_channel = cylinderFolder
+    .add(parameters, "cylinder_green_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Green")
+    .listen();
+
+    cylinder_green_channel.onChange(function(value) {
+      for (let i = 0; i < cylinder_list.length; i++) {
+        cylinder_list[i].material.color.setRGB(
+          parameters.cylinder_red_channel / 255,
+          parameters.cylinder_green_channel / 255,
+          parameters.cylinder_blue_channel / 255
+        );
+      }
+  });
+
+  cylinder_blue_channel = cylinderFolder
+    .add(parameters, "cylinder_blue_channel")
+    .min(0)
+    .max(255)
+    .step(1)
+    .name("Blue")
+    .listen();
+
+    cylinder_blue_channel.onChange(function(value) {
+      for (let i = 0; i < cylinder_list.length; i++) {
+        cylinder_list[i].material.color.setRGB(
+          parameters.cylinder_red_channel / 255,
+          parameters.cylinder_green_channel / 255,
+          parameters.cylinder_blue_channel / 255
+        );
+      }
+  });
+
   cylinderRadius = cylinderFolder
     .add(parameters, "radiusTop")
     .min(0)
@@ -254,9 +312,12 @@ function init() {
         value,
         value,
         cylinder_list[i].geometry.parameters.height
+      
       );
     }
   });
+
+  
 
   var globalFolder = gui.addFolder("Global Options");
 
