@@ -189,52 +189,24 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   // LIGHTS
-
+  /*helper to see direction of light
   var helper = new THREE.CameraHelper(camera);
-  scene.add(helper);
-
+  scene.add(helper);*/
   //light for hemispherical illumination
-  var alight = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
-  scene.add( alight );
-
-  // Directional Light
-  /*dirLight = new THREE.DirectionalLight(0xffffff, 1);
-
-  dirLight.castShadow = true;
-  dirLight.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 50, 1, 10, 2500 ) );
-  dirLight.shadow.bias = 0.0001;
-  dirLight.shadow.mapSize.width = 2048;
-  dirLight.shadow.mapSize.height = 1024;
-  scene.add(dirLight); 
-
-  
-  dirLight.color.setHSL(0.1, 1, 0.95);
-  dirLight.position.set(-1, 1.75, 1);
-  dirLight.position.multiplyScalar(30);
-  scene.add(dirLight); 
-
-  dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 2048;
-  dirLight.shadow.mapSize.height = 2048;
-  var d = 50;
-  dirLight.shadow.camera.left = -d;
-  dirLight.shadow.camera.right = d;
-  dirLight.shadow.camera.top = d;
-  dirLight.shadow.camera.bottom = -d;
-  dirLight.shadow.camera.far = 3500;
-  dirLight.shadow.bias = -0.0001;*/
-
+  var amblientLight = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+  scene.add( amblientLight);
+  //light attatched to camera
   var light = new THREE.PointLight(0xffffff,0.8, 58);
   light.position.set(10,6,-3);
   light.castShadow = true;
   light.shadow.camera.near = 50;
   light.shadow.camera.far = 550;
-  scene.add(light);
-
+  camera.add(light);
   //add light to follow the camera 
   scene.add( camera );
 
-  // GROUND
+  //Client requested to be commented out & left for future dev
+  /* GROUND
   var groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
   var groundMat = new THREE.MeshPhongMaterial({
     color: 0xffffff,
@@ -245,10 +217,9 @@ function init() {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -33;
   scene.add(ground);
-  ground.receiveShadow = true;
+  ground.receiveShadow = true; */
 
-  /////dat.GUI MENU
-  
+  //dat.GUI MENU
   gui = new dat.GUI({ autoPlace: false });
   gui.domElement.id = "gui-position";
   var customContainer = document.getElementById("gui-position");
