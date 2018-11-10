@@ -66,8 +66,12 @@ function readEntityData(results) {
     //render cylinders
     var cylinderHeight = entity_row.z2 - entity_row.z1;
     var geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, cylinderHeight);
-    var material = new THREE.MeshNormalMaterial();
+    var material = new THREE.MeshLambertMaterial({color: 0xff0000});
     var cylinder = new THREE.Mesh(geometry, material);
+    //cylinder.material.color.setHex( 0xADD8E6 );
+    cylinder.castShadow = true;
+    cylinder.receiveShadow = true;
+
     cylinder.position.x = entity_row.x;
     cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
     cylinder.position.z = entity_row.y;
@@ -155,6 +159,8 @@ animate();
 
 function init() {
   // must have scene, camera, renderer
+
+  //SCENE
   scene = new THREE.Scene();
   scene.background = new THREE.Color().setHSL(0.6, 0, 1);
   scene.fog = new THREE.Fog(scene.background, 1, 5000);
@@ -162,7 +168,7 @@ function init() {
 
   local_canvas = document.getElementById("vis-window");
 
-  //field of view, aspect ratio, near & far clipping plane
+  //CAMERA
   camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
   //camera is automatically put at 0,0,0 so this brings it out from where the cube is
   camera.position.set(30, 15, 0);
@@ -172,28 +178,41 @@ function init() {
   // Orbital Controls
   controls = new THREE.OrbitControls(camera, local_canvas);
 
+  //RENDERER
   //This can be swapped out later for VR
   renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
   //renderer.setPixelRatio(2); //inscreases internal render resolution
-
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.BasicShadowMap;
+
   document.body.appendChild(renderer.domElement);
 
-  // Lights
-  hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-  hemiLight.color.setHSL(0.6, 1, 0.6);
-  hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-  hemiLight.position.set(0, 50, 0);
-  //scene.add( hemiLight );
-  //hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-  //scene.add( hemiLightHelper );
+  // LIGHTS
+
+  var helper = new THREE.CameraHelper(camera);
+  scene.add(helper);
+
+  //light for hemispherical illumination
+  var alight = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+  scene.add( alight );
 
   // Directional Light
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  /*dirLight = new THREE.DirectionalLight(0xffffff, 1);
+
+  dirLight.castShadow = true;
+  dirLight.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 50, 1, 10, 2500 ) );
+  dirLight.shadow.bias = 0.0001;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 1024;
+  scene.add(dirLight); 
+
+  
   dirLight.color.setHSL(0.1, 1, 0.95);
   dirLight.position.set(-1, 1.75, 1);
   dirLight.position.multiplyScalar(30);
-  scene.add(dirLight);
+  scene.add(dirLight); 
+
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 2048;
   dirLight.shadow.mapSize.height = 2048;
@@ -203,9 +222,17 @@ function init() {
   dirLight.shadow.camera.top = d;
   dirLight.shadow.camera.bottom = -d;
   dirLight.shadow.camera.far = 3500;
-  dirLight.shadow.bias = -0.0001;
-  // dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 );
-  // scene.add( dirLightHeper );
+  dirLight.shadow.bias = -0.0001;*/
+
+  var light = new THREE.PointLight(0xffffff,0.8, 58);
+  light.position.set(10,6,-3);
+  light.castShadow = true;
+  light.shadow.camera.near = 50;
+  light.shadow.camera.far = 550;
+  scene.add(light);
+
+  //add light to follow the camera 
+  scene.add( camera );
 
   // GROUND
   var groundGeo = new THREE.PlaneBufferGeometry(10000, 10000);
@@ -221,7 +248,7 @@ function init() {
   ground.receiveShadow = true;
 
   /////dat.GUI MENU
-  //
+  
   gui = new dat.GUI({ autoPlace: false });
   gui.domElement.id = "gui-position";
   var customContainer = document.getElementById("gui-position");
