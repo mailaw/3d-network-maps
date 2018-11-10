@@ -196,10 +196,10 @@ function init() {
   var helper = new THREE.CameraHelper(camera);
   scene.add(helper);*/
   //light for hemispherical illumination
-  var amblientLight = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
+  var amblientLight = new THREE.AmbientLight( 0x404040, 3 ); // soft white light
   scene.add( amblientLight);
   //light attatched to camera
-  var light = new THREE.PointLight(0xffffff,0.8, 58);
+  var light = new THREE.PointLight(0xffffff,0.8, 90);
   light.position.set(10,6,-3);
   light.castShadow = true;
   light.shadow.camera.near = 50;
