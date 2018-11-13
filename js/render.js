@@ -180,7 +180,7 @@ function init() {
 
   // Orbital Controls
   controls = new THREE.OrbitControls(camera, local_canvas);
-
+  controls.autoRotate = true;
   //RENDERER
   //This can be swapped out later for VR
   renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
