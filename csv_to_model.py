@@ -13,7 +13,6 @@ import igraph as ig
 import numpy as np
 from dateutil import parser
 from flask import Flask, render_template, json, request
-from flask_uploads import UploadSet, configure_uploads, DATA
 import numpy as np
 import csv
 
@@ -104,7 +103,6 @@ class Relationship:
 
 def readEntityData(entity_csv):
     for item in entity_csv:
-        print(str(item['dob']))
         dystart=parser.parse(str(item['dob']))
         dyend=parser.parse(str(item['active']))
         entity_list.append(Entity(item['id'],item['name'],dystart,dyend))
@@ -113,7 +111,6 @@ def readRelationshipData(relationship_csv):
     for item in relationship_csv:
         dystart=parser.parse(str(item['s_date']))
         dyend=parser.parse(str(item['end_date']))
-        print(item['relationship'])
         relationship_list.append(Relationship(item['id'],item['pid_1'],item['pid_2']
                                                   ,item['relationship'],dystart,dyend))
     
