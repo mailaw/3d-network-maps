@@ -18,11 +18,7 @@ var parameters = {
     resetRadius();
   }
 };
-var projector, mouse = {
-    x: 0,
-    y: 0
-  },
-  INTERSECTED;
+
 init();
 animate();
 
