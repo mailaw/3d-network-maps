@@ -18,9 +18,11 @@ document.body.appendChild(renderer.domElement);
 
 var data;
 
+
 function readEntityData(results) {
   data = results["data"];
-
+  sendToBackend(data);
+  
   for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
@@ -46,8 +48,8 @@ function readEntityData(results) {
 }
 
 function readRelationData(results) {
-    data = results["data"];
-
+      data = results["data"];
+      sendToBackend(data);
     for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
@@ -90,9 +92,24 @@ function readRelationData(results) {
 
 }
 
+function sendToBackend(file){
+    var struct = [];
+    for (let index = 0; index < data.length; index++) {
+      struct.push(file[index]);
+    }
+    $.ajax({
+            type: 'POST',
+            url: '/execute',
+            data: {d: JSON.stringify(struct)},
+            dataType: "jsonp",
+            success: function(data) {
+                console.log(data);
+            },
+        });
+        
+}
 function handleEntityFileSelect(evt) {
   var file = evt.target.files[0];
-
   Papa.parse(file, {
     header: true,
     dynamicTyping: true,
@@ -111,15 +128,6 @@ function handleRelationFileSelect(evt) {
 }
 
 $(document).ready(function() {
-  console.log("HERE");
-  $.ajax({
-   url: "csv_to_model.py",
-   type:'POST',
-   success: function(response) {
-    console.log("Success");
-     // here you do whatever you want with the response variable
-   }
-});
   $("#entity-csv-file").change(handleEntityFileSelect);
 });
 

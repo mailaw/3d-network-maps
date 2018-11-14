@@ -22,7 +22,8 @@ app = Flask(__name__)
 @app.route("/home")
 def home():
     return render_template('index.html')
-
+entity_list=[]
+relationship_list=[]
 class Entity:
     def __init__(self, primary_key, name, starting_date, ending_date):
         self.primary_key = primary_key
@@ -96,9 +97,7 @@ class Relationship:
 
 # In[ ]:
 
-def readData(entity_csv, relationship_csv):
-    entityList = []
-    relationshipList = []
+def readEntityData(entity_csv):
     
     ##Indexes for entities csv file
     idIndex=0
@@ -106,10 +105,6 @@ def readData(entity_csv, relationship_csv):
     dobIndex=0
     endIndex=0
     
-    ##Indexes for relationships csv file
-    entityoneIndex=0
-    entitytwoIndex=0
-    relationshipIndex=0
         
     with open(entity_csv, 'rU') as f:
         first_line=f.readline().replace('\n','')
@@ -123,8 +118,16 @@ def readData(entity_csv, relationship_csv):
             item=item.split(',')
             dystart=parser.parse(item[dobIndex])
             dyend=parser.parse(item[endIndex])
-            entityList.append(Entity(item[idIndex],item[nameIndex],dystart,dyend))
+            entity_list.append(Entity(item[idIndex],item[nameIndex],dystart,dyend))
             
+
+
+def readRelationshipData(relationship_csv):
+      ##Indexes for relationships csv file
+    entityoneIndex=0
+    entitytwoIndex=0
+    relationshipIndex=0
+    
     with open(relationship_csv,"rU") as f:
         first_line=f.readline().replace('\n','')
         first_line=first_line.split(',')
@@ -138,13 +141,13 @@ def readData(entity_csv, relationship_csv):
             item=item.split(',')
             dystart=parser.parse(item[dobIndex])
             dyend=parser.parse(item[endIndex])
-            relationshipList.append(Relationship(item[idIndex],item[entityoneIndex],item[entitytwoIndex]
-                                                ,item[relationshipIndex],dystart,dyend))
-    return entityList, relationshipList
+            relationship_list.append(Relationship(item[idIndex],item[entityoneIndex],item[entitytwoIndex]
+                                              ,item[relationshipIndex],dystart,dyend))
+    
 ##1
 os.chdir("data");
-entity_list, relationship_list = readData("mock.csv", "relationships.csv")
-
+readEntityData("mock.csv")
+readRelationshipData("relationships.csv")
 # In[4]:
 
 def primary_key_map(entity_list):
