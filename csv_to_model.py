@@ -8,10 +8,12 @@
 
 # In[1]:
 import os
+import ast
 import igraph as ig
 import numpy as np
 from dateutil import parser
-from flask import Flask, render_template
+from flask import Flask, render_template, json, request
+from flask_uploads import UploadSet, configure_uploads, DATA
 import numpy as np
 import csv
 
@@ -22,6 +24,9 @@ app = Flask(__name__)
 @app.route("/home")
 def home():
     return render_template('index.html')
+
+entity_list=[]
+relationship_list=[]
 
 class Entity:
     def __init__(self, primary_key, name, starting_date, ending_date):
@@ -43,6 +48,7 @@ class Entity:
                   self.y, 
                   self.z1, 
                   self.z2]
+        print(fields)
         return [str(field) for field in fields]
     
         
@@ -96,54 +102,22 @@ class Relationship:
 
 # In[ ]:
 
-def readData(entity_csv, relationship_csv):
-    entityList = []
-    relationshipList = []
-    
-    ##Indexes for entities csv file
-    idIndex=0
-    nameIndex=0
-    dobIndex=0
-    endIndex=0
-    
-    ##Indexes for relationships csv file
-    entityoneIndex=0
-    entitytwoIndex=0
-    relationshipIndex=0
-        
-    with open(entity_csv, 'rU') as f:
-        first_line=f.readline().replace('\n','')
-        first_line=first_line.split(',')
-        idIndex=first_line.index("id")
-        nameIndex=first_line.index("name")
-        dobIndex=first_line.index("dob")
-        endIndex=first_line.index("active")
+def readEntityData(entity_csv):
+    for item in entity_csv:
+        print(str(item['dob']))
+        dystart=parser.parse(str(item['dob']))
+        dyend=parser.parse(str(item['active']))
+        entity_list.append(Entity(item['id'],item['name'],dystart,dyend))
 
-        for item in f:
-            item=item.split(',')
-            dystart=parser.parse(item[dobIndex])
-            dyend=parser.parse(item[endIndex])
-            entityList.append(Entity(item[idIndex],item[nameIndex],dystart,dyend))
-            
-    with open(relationship_csv,"rU") as f:
-        first_line=f.readline().replace('\n','')
-        first_line=first_line.split(',')
-        idIndex=first_line.index("id")
-        entityoneIndex=first_line.index("pid_1")
-        entitytwoIndex=first_line.index("pid_2")
-        relationshipIndex=first_line.index("relationship")
-        dobIndex=first_line.index("s_date")
-        endIndex=first_line.index("end_date")
-        for item in f:
-            item=item.split(',')
-            dystart=parser.parse(item[dobIndex])
-            dyend=parser.parse(item[endIndex])
-            relationshipList.append(Relationship(item[idIndex],item[entityoneIndex],item[entitytwoIndex]
-                                                ,item[relationshipIndex],dystart,dyend))
-    return entityList, relationshipList
+def readRelationshipData(relationship_csv):
+    for item in relationship_csv:
+        dystart=parser.parse(str(item['s_date']))
+        dyend=parser.parse(str(item['end_date']))
+        print(item['relationship'])
+        relationship_list.append(Relationship(item['id'],item['pid_1'],item['pid_2']
+                                                  ,item['relationship'],dystart,dyend))
+    
 ##1
-os.chdir("data");
-entity_list, relationship_list = readData("mock.csv", "relationships.csv")
 
 # In[4]:
 
@@ -216,119 +190,132 @@ def time_span(entity_list):
 
 
 # In[7]:
-#2
-get_entity = dict() # a way to get an entity by its primary key
-for entity in entity_list:
-    get_entity[entity.primary_key] = entity
-
-
-# In[8]:
-
-primary_key_mapper, inverse_primary_key_mapper = primary_key_map(entity_list) #getting key mappers
-edge_list = relationships_to_edge_list(relationship_list, primary_key_mapper) #generating edge list
-starting_time, ending_time = time_span(entity_list) #getting starting and ending times 
-n_day_duration = (ending_time - starting_time).days #getting duration as days 
-
-
-# In[9]:
-
-entity_xy_coords = np.array(ig.Graph(edge_list).layout('kk')) # getting 2d coordiantes of entities
-model_height = np.ptp(entity_xy_coords, axis = 0).max().round() # getting a good model height
-
-
-# In[10]:
-
-# setting the geometry of each entity
-for index, coord in enumerate(entity_xy_coords):
-    entity_primary_key = inverse_primary_key_mapper[index]
-    entity = get_entity[entity_primary_key]
-    entity.x = coord[0]
-    entity.y = coord[1]
-    entity.z1 = (entity.starting_date - starting_time).days/n_day_duration * model_height
-    entity.z2 = (entity.ending_date - starting_time).days/n_day_duration * model_height
-
-
-# In[11]:
-
-# setting the geometry of each relationship
-for relationship in relationship_list:
-    entity_1 = get_entity[relationship.entity_key_1]
-    entity_2 = get_entity[relationship.entity_key_2]
-    
-    relationship.x1 = entity_1.x
-    relationship.y1 = entity_1.y
-    
-    relationship.x2 = entity_1.x
-    relationship.y2 = entity_1.y
-    
-    relationship.x3 = entity_2.x
-    relationship.y3 = entity_2.y
-    
-    relationship.x4 = entity_2.x
-    relationship.y4 = entity_2.y
-    
-    
-    if relationship.starting_date is None and relationship.ending_date is None: # if relationship exists during full life of both entities
-        relationship.z1 = min(entity_1.z1, entity_2.z1)
-        relationship.z3 = relationship.z1
-
-        relationship.z2 = entity_1.z2
-        relationship.z4 = enitty_2.z2
+def setGeometries():
+    if len(entity_list) > 0 and len(relationship_list) > 0:
+        get_entity = dict() # a way to get an entity by its primary key
+        for entity in entity_list:
+            get_entity[entity.primary_key] = entity
         
-    else:
-        bottom_z = (relationship.starting_date - starting_time).days/n_day_duration * model_height
-        top_z = (relationship.ending_date - starting_time).days/n_day_duration * model_height
         
-        relationship.z1 = bottom_z
-        relationship.z3 = bottom_z
+        # In[8]:
         
-        relationship.z2 = top_z
-        relationship.z4 = top_z
+        primary_key_mapper, inverse_primary_key_mapper = primary_key_map(entity_list) #getting key mappers
+        edge_list = relationships_to_edge_list(relationship_list, primary_key_mapper) #generating edge list
+        starting_time, ending_time = time_span(entity_list) #getting starting and ending times 
+        n_day_duration = (ending_time - starting_time).days #getting duration as days 
+        
+        
+        # In[9]:
+        
+        entity_xy_coords = np.array(ig.Graph(edge_list).layout('kk')) # getting 2d coordiantes of entities
+        model_height = np.ptp(entity_xy_coords, axis = 0).max().round() # getting a good model height
+        
+        
+        # In[10]:
+        
+        # setting the geometry of each entity
+        for index, coord in enumerate(entity_xy_coords):
+            entity_primary_key = inverse_primary_key_mapper[index]
+            entity = get_entity[entity_primary_key]
+            entity.x = coord[0]
+            entity.y = coord[1]
+            entity.z1 = (entity.starting_date - starting_time).days/n_day_duration * model_height
+            entity.z2 = (entity.ending_date - starting_time).days/n_day_duration * model_height
+        
+        
+        # In[11]:
+        
+        # setting the geometry of each relationship
+        for relationship in relationship_list:
+            entity_1 = get_entity[relationship.entity_key_1]
+            entity_2 = get_entity[relationship.entity_key_2]
+            
+            relationship.x1 = entity_1.x
+            relationship.y1 = entity_1.y
+            
+            relationship.x2 = entity_1.x
+            relationship.y2 = entity_1.y
+            
+            relationship.x3 = entity_2.x
+            relationship.y3 = entity_2.y
+            
+            relationship.x4 = entity_2.x
+            relationship.y4 = entity_2.y
+            
+            
+            if relationship.starting_date is None and relationship.ending_date is None: # if relationship exists during full life of both entities
+                relationship.z1 = min(entity_1.z1, entity_2.z1)
+                relationship.z3 = relationship.z1
+        
+                relationship.z2 = entity_1.z2
+                relationship.z4 = enitty_2.z2
+                
+            else:
+                bottom_z = (relationship.starting_date - starting_time).days/n_day_duration * model_height
+                top_z = (relationship.ending_date - starting_time).days/n_day_duration * model_height
+                
+                relationship.z1 = bottom_z
+                relationship.z3 = bottom_z
+                
+                relationship.z2 = top_z
+                relationship.z4 = top_z
 
 
 # In[12]:
-
 def write_entities(entity_list, csv_name):
-    with open(csv_name + '.csv', mode = 'w') as entity_file:
-        entity_writer = csv.writer(entity_file)
-        entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
-        for entity in entity_list:
-            entity_writer.writerow(entity.get_string_representation())
-
+    if(len(entity_list)>0 and len(relationship_list)>0):
+        os.chdir("data")
+        with open(csv_name + '.csv', mode = 'w') as entity_file:
+            entity_writer = csv.writer(entity_file)
+            entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
+            for entity in entity_list:
+                entity_writer.writerow(entity.get_string_representation())
+        os.chdir("..")
 
 # In[13]:
 
 def write_relationships(relationship_list, csv_name):
-    with open(csv_name + '.csv', mode = 'w') as relationship_file:
-        relationship_writer = csv.writer(relationship_file)
-        relationship_writer.writerow(['primary_key',
-                                      'entity_key_1',
-                                      'entity_key_2',
-                                      'relationship_type',
-                                      'starting_date',
-                                      'ending_date',
-                                      'x1',
-                                      'y1',
-                                      'z1',
-                                      'x2',
-                                      'y2',
-                                      'z2',
-                                      'x3',
-                                      'y3',
-                                      'z3',
-                                      'x4',
-                                      'y4',
-                                      'z4'])
-
-        for relationship in relationship_list:
-            relationship_writer.writerow(relationship.get_string_representation())
-
+    if(len(entity_list)>0 and len(relationship_list)>0):
+        os.chdir("data")
+        with open(csv_name + '.csv', mode = 'w') as relationship_file:
+            relationship_writer = csv.writer(relationship_file)
+            relationship_writer.writerow(['primary_key',
+                                          'entity_key_1',
+                                          'entity_key_2',
+                                          'relationship_type',
+                                          'starting_date',
+                                          'ending_date',
+                                          'x1',
+                                          'y1',
+                                          'z1',
+                                          'x2',
+                                          'y2',
+                                          'z2',
+                                          'x3',
+                                          'y3',
+                                          'z3',
+                                          'x4',
+                                          'y4',
+                                          'z4'])
+    
+            for relationship in relationship_list:
+                relationship_writer.writerow(relationship.get_string_representation())
+        os.chdir("..")
 
 # In[14]:
 #3
-write_entities(entity_list, 'mock_entity_output')
-write_relationships(relationship_list, 'mock_relationship_output')
-os.chdir("..")
+@app.route("/execute",methods=['POST','GET'])
+def execute():
+    f = request.form.get("d")
+    f = ast.literal_eval(f)
+    if len(f[0].keys()) <=4: ##If it is the entity.csv file
+        readEntityData(f)
+    else:
+        readRelationshipData(f)
+    setGeometries()
+    write_entities(entity_list, 'mock_entity_output')
+    write_relationships(relationship_list, 'mock_relationship_output')
+    return "success"
 if __name__ == '__main__':
     app.run(debug=True)
 
