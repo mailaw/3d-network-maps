@@ -1,5 +1,11 @@
+//max x,y,z
+var minx = 200, miny = 200, minz = 200;
+var maxv;
+var maxx = -100, maxy = -100, maxz = -100;
 //global vars
 var camera, scene, renderer, local_canvas, controls;
+var time_line;
+var globalFolder;
 //custom vars
 var plane, planeOpacity;
 var cylinder, cylinderRadius;
@@ -30,6 +36,9 @@ var parameters = {
 };
 var gui;
 var data;
+
+init();
+animate();
 
 $(document).ready(function() {
   $("#entity-csv-file").change(handleEntityFileSelect);
@@ -63,12 +72,12 @@ function readEntityData(results) {
   data = results["data"];
   //var radiusVar = 0.5;
 
-  for (let index = 0; index < data.length; index++) {
+  for (let index = 0; index < data.length-1; index++) {
     var entity_row = data[index];
 
     //render cylinders
-    var cylinderHeight = entity_row.z2 - entity_row.z1;
-    var geometry = new THREE.CylinderBufferGeometry(0.2, 0.2, cylinderHeight);
+    var cylinderHeight = (entity_row.z2 - entity_row.z1)*10;
+    var geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, cylinderHeight);
     //var cylinder_color = new THREE.Color("rgb(255, 0, 0)");
     var material = new THREE.MeshLambertMaterial({color: 0xff0000 });
     var cylinder = new THREE.Mesh(geometry, material);
@@ -77,17 +86,36 @@ function readEntityData(results) {
     cylinder.receiveShadow = true;
 
     cylinder.position.x = entity_row.x;
-    cylinder.position.y = (entity_row.z2 - entity_row.z1) / 2 + entity_row.z1;
+    cylinder.position.y = (entity_row.z2 - entity_row.z1)*5 + entity_row.z1*10;
     cylinder.position.z = entity_row.y;
     cylinder_postion_list.push([
       cylinder.position.x,
       cylinder.position.y,
       cylinder.position.z
     ]);
+    minx = Math.min(cylinder.position.x,minx);
+    miny = Math.min(entity_row.z1,miny);
+    minz = Math.min(cylinder.position.z,minz);
+    maxx = Math.max(cylinder.position.x,maxx);
+    maxy = Math.max(entity_row.z2,maxy);
+    maxz = Math.max(cylinder.position.z,maxz);
+
+    console.log("x:"+minx);
+    console.log("y:"+miny);
+    console.log("z:"+minz);
+
+    console.log("x:"+maxx);
+    console.log("y:"+maxy);
+    console.log("z:"+maxz);
+
     scene.add(cylinder);
     cylinder_list.push(cylinder);
     //console.log(cylinder.geometry.parameters.radiusTop);
   }
+
+  maxv = Math.max(maxx-minx,maxz-minz);
+  maxv = Math.max(maxv*10,maxy);
+//  console.log("v:"+maxv);
 
   //currently: properly changing and registering
   // cylinderRadius.onChange(function(value) {
@@ -97,6 +125,61 @@ function readEntityData(results) {
   cylinder.geometry.parameters.radiusTop = 0.5;
   //console.log(cylinder.geometry.parameters.radiusTop);
   //updateRadius();
+  //time folder
+  parameters = {
+    radiusTop: 0.2,
+    //radiusBottom: 0.5,
+    opacity: 0.8,
+    visible: true,
+    scale: 1.0,
+    time: miny+0.55*maxv,
+    scene_red_channel: 0,
+    scene_green_channel: 0,
+    scene_blue_channel: 0,
+    cylinder_red_channel: 0,
+    cylinder_blue_channel: 0,
+    cylinder_green_channel: 0,
+    reset: function() {
+      resetPlane();
+      resetRadius();
+    }
+  };
+
+  var time_folder = globalFolder.addFolder("Time");
+  time_line = time_folder
+  .add(parameters, "time")
+  .min(miny)
+  .max(miny+1.1*maxv)
+  .step(0.011*maxv)
+  .name("Time")
+  .listen();
+
+  //axis, and grid
+  var axis = new THREE.AxesHelper(1.2*maxv);
+  axis.position.set(minx*10,miny,minz*10);
+  scene.add(axis);
+  var gridXY = new THREE.GridHelper(1.1*maxv, 10);
+  gridXY.rotation.x = Math.PI/2;
+  gridXY.position.set(minx*10+0.55*maxv,miny+0.55*maxv,minz*10);
+//   gridXY.setColors( new THREE.Color(0xff0000), new THREE.Color(0xffffff) );
+  var gridXZ = new THREE.GridHelper(1.1*maxv, 10);
+  gridXZ.rotation.x = Math.PI;
+  gridXZ.position.set(minx*10+0.55*maxv,miny,minz*10+0.55*maxv);
+  var gridYZ = new THREE.GridHelper(1.1*maxv, 10);
+  gridYZ.rotation.x = Math.PI;
+  gridYZ.rotation.z = Math.PI/2;
+  gridYZ.position.set(minx*10,miny+0.55*maxv,minz*10+0.55*maxv);
+  var timeGrid = new THREE.GridHelper(1.1*maxv, 10);
+  timeGrid.rotation.x = Math.PI;
+  timeGrid.position.set(minx*10+0.55*maxv,miny+0.55*maxv,minz*10+0.55*maxv);
+
+  scene.add(gridXY);
+  scene.add(gridXZ);
+  scene.add(gridYZ);
+  scene.add(timeGrid);
+  time_line.onChange(function(value) {
+    timeGrid.position.y = value;
+  });
 }
 
 function readRelationData(results) {
@@ -157,9 +240,6 @@ function readRelationData(results) {
   //updatePlane();
 }
 
-init();
-animate();
-
 function init() {
   // Note: must have scene, camera, renderer
 
@@ -180,7 +260,7 @@ function init() {
 
   // Orbital Controls
   controls = new THREE.OrbitControls(camera, local_canvas);
-  controls.autoRotate = true;
+//  controls.autoRotate = true;
   //RENDERER
   //This can be swapped out later for VR
   renderer = new THREE.WebGLRenderer({ canvas: local_canvas });
@@ -309,8 +389,8 @@ function init() {
   cylinderRadius.onChange(function(value) {
     for (let i = 0; i < cylinder_list.length; i++) {
       cylinder_list[i].geometry = new THREE.CylinderBufferGeometry(
-        value,
-        value,
+        value*2,
+        value*2,
         cylinder_list[i].geometry.parameters.height
       
       );
@@ -319,7 +399,7 @@ function init() {
 
   
 
-  var globalFolder = gui.addFolder("Global Options");
+  globalFolder = gui.addFolder("Global Options");
 
   scaleFactor = globalFolder
     .add(parameters, "scale")
@@ -418,7 +498,7 @@ function updateRadius() {
   //cylinder.geometry.parameters.radiusBottom = parameters.radiusBottom;
 }
 function resetRadius() {
-  parameters.radiusTop = 0.1;
+  parameters.radiusTop = 0.5;
   //parameters.radiusBottom = 0.1;
   updateRadius();
 }
