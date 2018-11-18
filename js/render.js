@@ -16,12 +16,13 @@ var cylinder_postion_list = [];
 
 var plane_list = [];
 var plane_position_list = [];
-
+//miny+0.55*maxv
 var parameters = {
   radiusTop: 0.2,
   //radiusBottom: 0.5,
   opacity: 0.8,
   visible: true,
+  time: 0,
   scale: 1.0,
   scene_red_channel: 0,
   scene_green_channel: 0,
@@ -70,7 +71,6 @@ function handleRelationFileSelect(evt) {
 
 function readEntityData(results) {
   data = results["data"];
-  //var radiusVar = 0.5;
 
   for (let index = 0; index < data.length-1; index++) {
     var entity_row = data[index];
@@ -100,50 +100,14 @@ function readEntityData(results) {
     maxy = Math.max(entity_row.z2,maxy);
     maxz = Math.max(cylinder.position.z,maxz);
 
-    console.log("x:"+minx);
-    console.log("y:"+miny);
-    console.log("z:"+minz);
-
-    console.log("x:"+maxx);
-    console.log("y:"+maxy);
-    console.log("z:"+maxz);
-
     scene.add(cylinder);
     cylinder_list.push(cylinder);
-    //console.log(cylinder.geometry.parameters.radiusTop);
   }
 
   maxv = Math.max(maxx-minx,maxz-minz);
   maxv = Math.max(maxv*10,maxy);
-//  console.log("v:"+maxv);
 
-  //currently: properly changing and registering
-  // cylinderRadius.onChange(function(value) {
-  //   cylinder.geometry.parameters.radiusTop = value;
-  //   //console.log(cylinder.geometry.parameters.radiusTop);
-  // });
   cylinder.geometry.parameters.radiusTop = 0.5;
-  //console.log(cylinder.geometry.parameters.radiusTop);
-  //updateRadius();
-  //time folder
-  parameters = {
-    radiusTop: 0.2,
-    //radiusBottom: 0.5,
-    opacity: 0.8,
-    visible: true,
-    scale: 1.0,
-    time: miny+0.55*maxv,
-    scene_red_channel: 0,
-    scene_green_channel: 0,
-    scene_blue_channel: 0,
-    cylinder_red_channel: 0,
-    cylinder_blue_channel: 0,
-    cylinder_green_channel: 0,
-    reset: function() {
-      resetPlane();
-      resetRadius();
-    }
-  };
 
   var time_folder = globalFolder.addFolder("Time");
   time_line = time_folder
@@ -177,7 +141,9 @@ function readEntityData(results) {
   scene.add(gridXZ);
   scene.add(gridYZ);
   scene.add(timeGrid);
-  time_line.onChange(function(value) {
+
+  time_line.onChange(function(value) { 
+    parameters.time = miny+0.55*maxv;
     timeGrid.position.y = value;
   });
 }
@@ -396,8 +362,6 @@ function init() {
       );
     }
   });
-
-  
 
   globalFolder = gui.addFolder("Global Options");
 
