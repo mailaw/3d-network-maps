@@ -164,24 +164,24 @@ function readRelationData(results) {
     var geometry = new THREE.Geometry();
 
     geometry.vertices.push(
-      new THREE.Vector3(entity_row.x1, entity_row.z1, entity_row.y1),
-      new THREE.Vector3(entity_row.x2, entity_row.z2, entity_row.y2),
-      new THREE.Vector3(entity_row.x4, entity_row.z4, entity_row.y4),
-      new THREE.Vector3(entity_row.x3, entity_row.z3, entity_row.y3)
+      new THREE.Vector3(entity_row.x1, entity_row.z1*10, entity_row.y1),
+      new THREE.Vector3(entity_row.x2, entity_row.z2*10, entity_row.y2),
+      new THREE.Vector3(entity_row.x4, entity_row.z4*10, entity_row.y4),
+      new THREE.Vector3(entity_row.x3, entity_row.z3*10, entity_row.y3)
     );
 
     plane_position_list.push([
       entity_row.x1,
-      entity_row.z1,
+      entity_row.z1*10,
       entity_row.y1,
       entity_row.x2,
-      entity_row.z2,
+      entity_row.z2*10,
       entity_row.y2,
       entity_row.x4,
-      entity_row.z4,
+      entity_row.z4*10,
       entity_row.y4,
       entity_row.x3,
-      entity_row.z3,
+      entity_row.z3*10,
       entity_row.y3
     ]);
 
