@@ -519,14 +519,15 @@ function animate() {
     if (intersects[0].object != INTERSECTED) {
       // restore previous intersection object (if it exists) to its original color
       if (INTERSECTED)
-//        INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
-//      // store reference to closest object as current intersection object
+       //INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+      // store reference to closest object as current intersection object
       INTERSECTED = intersects[0].object;
-//      // store color of closest object (for later restoration)
-//      INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-//      // set a new color for closest object
-//      INTERSECTED.material.color.setHex(0xffff00);
+      // store color of closest object (for later restoration)
+      //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+      // set a new color for closest object
+      // INTERSECTED.material.color.setHex(0xffff00);
       //console.log("name:"+intersects[0].object.name);
+
       document.getElementById("display_name").innerHTML = intersects[0].object.name;
       document.getElementById("display_starting").innerHTML = intersects[0].object.starting_date;
       document.getElementById("display_ending").innerHTML = intersects[0].object.ending_date;
