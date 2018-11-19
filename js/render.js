@@ -1,7 +1,7 @@
 //global vars
 var camera, scene, renderer, local_canvas, controls;
-var globalFolder;
 var time_line;
+var globalFolder;
 //custom vars
 var plane, planeOpacity;
 var cylinder, cylinderRadius;
