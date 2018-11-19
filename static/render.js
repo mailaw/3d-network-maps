@@ -20,7 +20,6 @@ var data;
 
 function loadFile(filePath) {
   var result = null;
-  var struct = [];
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET", filePath, false);
   xmlhttp.send();
