@@ -76,3 +76,7 @@ header h1 {
 p {
   font-size: 1.5em;
 }
+
+.inline{
+  display: inline-block;
+} 
