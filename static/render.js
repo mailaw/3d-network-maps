@@ -18,11 +18,29 @@ document.body.appendChild(renderer.domElement);
 
 var data;
 
-
+function loadFile(filePath) {
+  var result = null;
+  var struct = [];
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("GET", filePath, false);
+  xmlhttp.send();
+  if (xmlhttp.status==200) {
+    result = xmlhttp.responseText;
+  }
+   Papa.parse(result, {
+    header: true,
+    dynamicTyping: true,
+    complete: function(results) {
+    result = results.data;
+  }
+  });
+  console.log(result);
+  return result;
+}
 function readEntityData(results) {
   data = results["data"];
   sendToBackend(data);
-  
+  data = loadFile("/static/mock_entity_output.csv");
   for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
@@ -49,7 +67,9 @@ function readEntityData(results) {
 
 function readRelationData(results) {
       data = results["data"];
+      console.log(data);
       sendToBackend(data);
+      data = loadFile("/static/mock_relationship_output.csv");
     for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 

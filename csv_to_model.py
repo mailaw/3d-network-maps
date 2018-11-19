@@ -261,7 +261,7 @@ def setGeometries():
 # In[12]:
 def write_entities(entity_list, csv_name):
     if(len(entity_list)>0 and len(relationship_list)>0):
-        os.chdir("data")
+        os.chdir("static")
         with open(csv_name + '.csv', mode = 'w') as entity_file:
             entity_writer = csv.writer(entity_file)
             entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
@@ -273,7 +273,7 @@ def write_entities(entity_list, csv_name):
 
 def write_relationships(relationship_list, csv_name):
     if(len(entity_list)>0 and len(relationship_list)>0):
-        os.chdir("data")
+        os.chdir("static")
         with open(csv_name + '.csv', mode = 'w') as relationship_file:
             relationship_writer = csv.writer(relationship_file)
             relationship_writer.writerow(['primary_key',
