@@ -1,5 +1,6 @@
 //global vars
 var camera, scene, renderer, local_canvas, controls;
+var globalFolder;
 //custom vars
 var plane, planeOpacity;
 var cylinder, cylinderRadius;
@@ -345,7 +346,7 @@ function init() {
     }
   });
 
-  var globalFolder = gui.addFolder("Global Options");
+  globalFolder = gui.addFolder("Global Options");
 
   scaleFactor = globalFolder
     .add(parameters, "scale")
