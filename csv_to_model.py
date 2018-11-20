@@ -189,6 +189,7 @@ def time_span(entity_list):
 # In[7]:
 def setGeometries():
     if len(entity_list) > 0 and len(relationship_list) > 0:
+        print("HERE");
         get_entity = dict() # a way to get an entity by its primary key
         for entity in entity_list:
             get_entity[entity.primary_key] = entity
@@ -261,7 +262,7 @@ def setGeometries():
 # In[12]:
 def write_entities(entity_list, csv_name):
     if(len(entity_list)>0 and len(relationship_list)>0):
-        os.chdir("static")
+        os.chdir("data")
         with open(csv_name + '.csv', mode = 'w') as entity_file:
             entity_writer = csv.writer(entity_file)
             entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
@@ -273,7 +274,7 @@ def write_entities(entity_list, csv_name):
 
 def write_relationships(relationship_list, csv_name):
     if(len(entity_list)>0 and len(relationship_list)>0):
-        os.chdir("static")
+        os.chdir("data")
         with open(csv_name + '.csv', mode = 'w') as relationship_file:
             relationship_writer = csv.writer(relationship_file)
             relationship_writer.writerow(['primary_key',
@@ -303,15 +304,20 @@ def write_relationships(relationship_list, csv_name):
 #3
 @app.route("/execute",methods=['POST','GET'])
 def execute():
+    executedBoth = False
     f = request.form.get("d")
     f = ast.literal_eval(f)
     if len(f[0].keys()) <=4: ##If it is the entity.csv file
         readEntityData(f)
     else:
         readRelationshipData(f)
+        executedBoth = True
     setGeometries()
-    write_entities(entity_list, 'mock_entity_output')
-    write_relationships(relationship_list, 'mock_relationship_output')
+    if executedBoth:
+        write_entities(entity_list, 'mock_entity_output')
+        write_relationships(relationship_list, 'mock_relationship_output')
+        del entity_list[:]
+        del relationship_list[:]
     return "success"
 if __name__ == '__main__':
     app.run(debug=True)

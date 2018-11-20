@@ -33,13 +33,9 @@ function loadFile(filePath) {
     result = results.data;
   }
   });
-  console.log(result);
   return result;
 }
-function readEntityData(results) {
-  data = results["data"];
-  sendToBackend(data);
-  data = loadFile("/static/mock_entity_output.csv");
+function renderCylinders(data){
   for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
@@ -61,15 +57,9 @@ function readEntityData(results) {
 //    var plane = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 //    scene.add(plane);
   }
-
 }
-
-function readRelationData(results) {
-      data = results["data"];
-      console.log(data);
-      sendToBackend(data);
-      data = loadFile("/static/mock_relationship_output.csv");
-    for (let index = 0; index < data.length; index++) {
+function renderPlanes(data){
+  for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
 
     //render planes
@@ -108,6 +98,24 @@ function readRelationData(results) {
     //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
     scene.add(plane);
     }
+}
+function readEntityData(results) {
+  data = results["data"];
+  sendToBackend(data);
+  /*datax = loadFile("/static/mock_entity_output.csv");
+  console.log(datax);
+  renderCylinders(datax);
+*/
+}
+
+function readRelationData(results) {
+      data = results["data"];
+      sendToBackend(data);
+      //load files only once both entity and relationship data have beeen processed
+      entityData = loadFile("/static/mock_entity_output.csv");
+      relationData = loadFile("/static/mock_relationship_output.csv");
+      renderCylinders(entityData);
+      renderPlanes(relationData);
 
 }
 
