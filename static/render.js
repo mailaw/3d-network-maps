@@ -102,10 +102,6 @@ function renderPlanes(data){
 function readEntityData(results) {
   data = results["data"];
   sendToBackend(data);
-  /*datax = loadFile("/static/mock_entity_output.csv");
-  console.log(datax);
-  renderCylinders(datax);
-*/
 }
 
 function readRelationData(results) {
