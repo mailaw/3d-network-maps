@@ -110,6 +110,7 @@ function readRelationData(results) {
       //load files only once both entity and relationship data have beeen processed
       entityData = loadFile("/static/mock_entity_output.csv");
       relationData = loadFile("/static/mock_relationship_output.csv");
+      console.log(entityData);
       renderCylinders(entityData);
       renderPlanes(relationData);
 
@@ -123,7 +124,7 @@ function sendToBackend(file){
     $.ajax({
             type: 'POST',
             url: '/execute',
-            data: {d: JSON.stringify(struct)},
+            data: {d: JSON.stringify(struct),type:'entity'},
             dataType: "jsonp",
             success: function(data) {
                 console.log(data);

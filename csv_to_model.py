@@ -306,8 +306,9 @@ def write_relationships(relationship_list, csv_name):
 def execute():
     executedBoth = False
     f = request.form.get("d")
+    typ = request.form.get("type")
     f = ast.literal_eval(f)
-    if len(f[0].keys()) <=4: ##If it is the entity.csv file
+    if 'dob' in f[0].keys(): ##If it is the entity.csv file
         readEntityData(f)
     else:
         readRelationshipData(f)
