@@ -1,22 +1,41 @@
 .inputfile {
-	width: 0.1px;
-	height: 0.1px;
-	opacity: 0;
-	overflow: hidden;
-	position: absolute;
-	z-index: -1;
-    
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
 }
 
-canvas#vis-window{
-    width: 80% !important;
-    height: 80% !important;
-    padding: 30px !important;
-    margin-left: 140px !important;
+#canvas-div {
+  position: absolute;
+  width: 80% !important;
+  height: 80% !important;
+  padding: 30px !important;
+  margin-left: 140px !important;
 }
 
-header
-{
+#canvas-div canvas {
+  position: relative;
+  z-index: 1;
+}
+
+canvas#vis-window {
+  position: relative !important;
+  width: 80% !important;
+  height: 80% !important;
+  padding: 30px !important;
+  margin-left: 140px !important;
+}
+
+#gui-position {
+  position: absolute;
+  top: 3em;
+  right: 65px;
+  z-index: 10;
+}
+
+header {
   display: block;
   z-index: 999;
   width: 100%;
@@ -25,39 +44,39 @@ header
   text-align: center;
 }
 
-header h1{
-    font-family: 'Exo', sans-serif;
-    font-size: 5em;
+header h1 {
+  font-family: "Exo", sans-serif;
+  font-size: 5em;
 }
-#nav
-{
+#nav {
   font-size: 2em;
   display: inline-block;
   letter-spacing: 0.3em;
   text-shadow: 1px 1px 0.25px #fff;
 }
 
-#nav ul
-{
+#nav ul {
   margin: 0;
   padding: 0;
   list-style-type: none;
 }
 
-#nav ul li
-{
+#nav ul li {
   padding-right: 1.2em;
   display: inline-block;
 }
 
-#content
-{
+#content {
   padding: 3em 7% 3em 7%;
   max-width: 1200px;
   margin: 0px auto;
   overflow-x: hidden;
 }
 
-p{
-    font-size: 1.5em;
+p {
+  font-size: 1em;
 }
+
+.inline{
+  display: inline-block;
+} 
