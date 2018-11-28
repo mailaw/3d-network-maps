@@ -7,7 +7,7 @@ var camera, scene, renderer, local_canvas, controls;
 var time_line;
 var globalFolder;
 //custom vars
-var plane, planeOpacity;
+var planeOpacity;
 var cylinder, cylinderRadius;
 
 //scene data
@@ -31,8 +31,8 @@ var parameters = {
   cylinder_blue_channel: 0,
   cylinder_green_channel: 0,
   reset: function() {
-    resetPlane();
-    resetRadius();
+//    resetPlane();
+//    resetRadius();
   }
 };
 
@@ -95,6 +95,7 @@ function readEntityData(results) {
     cylinder.position.y = (entity_row.z2 - entity_row.z1)*5 + entity_row.z1*10;
     cylinder.position.z = entity_row.y;
 
+    cylinder.type = "entity";
     cylinder.name = entity_row.name;
     cylinder.starting_date = entity_row.starting_date;
     cylinder.ending_date = entity_row.ending_date;
@@ -130,6 +131,11 @@ function readEntityData(results) {
   .listen();
 
   //axis, and grid
+  console.log("maxv:"+maxv);
+  console.log("minx:"+minx);
+  console.log("minz:"+minz);
+
+
   var axis = new THREE.AxesHelper(1.2*maxv);
   axis.position.set(minx*10,miny,minz*10);
   scene.add(axis);
@@ -203,10 +209,11 @@ function readRelationData(results) {
     geometry.computeBoundingSphere();
 
     var plane = new THREE.Mesh(geometry, material);
-    //plane.position.x = (entity_row.x1+entity_row.x3)/2;
-    //plane.position.z = (entity_row.y1+entity_row.y3)/2;
-    //plane.position.y = cylinderHeight/2;
-    //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
+    plane.type = "relation";
+    plane.name = entity_row.relationship_type;
+    plane.starting_date = entity_row.starting_date;
+    plane.ending_date = entity_row.ending_date;
+
     scene.add(plane);
     plane_list.push(plane);
   }
@@ -249,9 +256,8 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   //MOUSE
-  document.addEventListener('mousemove', onDocumentMouseMove, false);
   window.addEventListener('resize', onWindowResize, false);
-
+  document.addEventListener('mousemove', onDocumentMouseMove, false);
   // LIGHTS
   /*helper to see direction of light
   var helper = new THREE.CameraHelper(camera);
@@ -462,15 +468,15 @@ function init() {
   gui.open();
 }
 
-function updatePlane() {
-  plane.material.opacity = parameters.opacity;
-  plane.material.transparent = true;
-}
-function resetPlane() {
-  parameters.opacity = 1;
-  parameters.visible = true;
-  updatePlane();
-}
+//function updatePlane() {
+//  plane.material.opacity = parameters.opacity;
+//  plane.material.transparent = true;
+//}
+//function resetPlane() {
+//  parameters.opacity = 1;
+//  parameters.visible = true;
+//  updatePlane();
+//}
 
 function updateRadius() {
   cylinder.geometry.parameters.radiusTop = parameters.radiusTop;
@@ -527,6 +533,7 @@ function animate() {
 //      // set a new color for closest object
 //      INTERSECTED.material.color.setHex(0xffff00);
       //console.log("name:"+intersects[0].object.name);
+      document.getElementById("display_type").innerHTML = intersects[0].object.type;
       document.getElementById("display_name").innerHTML = intersects[0].object.name;
       document.getElementById("display_starting").innerHTML = intersects[0].object.starting_date;
       document.getElementById("display_ending").innerHTML = intersects[0].object.ending_date;
