@@ -1,22 +1,51 @@
-// must have scene, camera, renderer
-var scene = new THREE.Scene();
-var aspect = window.innerWidth / window.innerHeight;
+//max x,y,z
+var minx = 200, miny = 200, minz = 200;
+var maxv;
+var maxx = -100, maxy = -100, maxz = -100;
+//global vars
+var camera, scene, renderer, local_canvas, controls;
+var time_line;
+var globalFolder;
+//custom vars
+var plane, planeOpacity;
+var cylinder, cylinderRadius;
 
-var local_canvas = document.getElementById("vis-window");
+//scene data
+var cylinder_list = [];
+var cylinder_postion_list = [];
 
-//field of view, aspect ratio, near & far clipping plane
-var camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+var plane_list = [];
+var plane_position_list = [];
+//miny+0.55*maxv
+var parameters = {
+  radiusTop: 0.2,
+  //radiusBottom: 0.5,
+  opacity: 0.8,
+  visible: true,
+  time: 0,
+  scale: 1.0,
+  scene_red_channel: 0,
+  scene_green_channel: 0,
+  scene_blue_channel: 0,
+  cylinder_red_channel: 0,
+  cylinder_blue_channel: 0,
+  cylinder_green_channel: 0,
+  reset: function() {
+    resetPlane();
+    resetRadius();
+  }
+};
 
-//orbital controls
-var controls = new THREE.OrbitControls( camera, local_canvas);
-
-//This can be swapped out later for VR
-var renderer = new THREE.WebGLRenderer({canvas:local_canvas});
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
+var projector, mouse = {
+  x: 0,
+  y: 0
+},
+INTERSECTED;
+var gui;
 var data;
+
+init();
+animate();
 
 function loadFile(filePath) {
   var result = null;
@@ -36,7 +65,6 @@ function loadFile(filePath) {
   return result;
 }
 function renderCylinders(data){
-  
   for (let index = 0; index < data.length-1; index++) {
     var entity_row = data[index];
 
@@ -117,10 +145,7 @@ function renderCylinders(data){
     timeGrid.position.y = value;
   });
 }
-
 function renderPlanes(data){
-  //data = results["data"];
-
   var material = new THREE.MeshLambertMaterial({
     color: 0x1cff44,
     emissive: 0x1cff44,
@@ -174,9 +199,7 @@ function renderPlanes(data){
     plane.material.opacity = value;
   });
   //updatePlane();
-
 }
-
 function readEntityData(results) {
   data = results["data"];
   sendToBackend(data);
@@ -188,6 +211,7 @@ function readRelationData(results) {
       //load files only once both entity and relationship data have beeen processed
       entityData = loadFile("/static/mock_entity_output.csv");
       relationData = loadFile("/static/mock_relationship_output.csv");
+      console.log(entityData);
       renderCylinders(entityData);
       renderPlanes(relationData);
 
@@ -201,7 +225,7 @@ function sendToBackend(file){
     $.ajax({
             type: 'POST',
             url: '/execute',
-            data: {d: JSON.stringify(struct)},
+            data: {d: JSON.stringify(struct),type:'entity'},
             dataType: "jsonp",
             success: function(data) {
                 console.log(data);
