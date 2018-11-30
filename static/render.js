@@ -192,7 +192,8 @@ function renderPlanes(data){
 
     var material = new THREE.MeshLambertMaterial({
       transparent: true,
-      opacity: 0.8
+      opacity: 0.8,
+      color: relationship_color_map[relationship_type]
     });
 
     var plane = new THREE.Mesh(geometry, material);
