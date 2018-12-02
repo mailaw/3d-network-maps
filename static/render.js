@@ -208,6 +208,7 @@ function sendToBackend(file){
     for (let index = 0; index < data.length; index++) {
       struct.push(file[index]);
     }
+    console.log(struct);
     $.ajax({
             type: 'POST',
             url: '/execute',

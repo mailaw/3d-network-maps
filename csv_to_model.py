@@ -121,6 +121,10 @@ def readEntityData(entity_csv):
                 break
             dystart=parser.parse(str(item['dob']))
             dyend=parser.parse(str(item['active']))
+            if dystart == None or dyend == None:
+                print('Record could not be parsed', item)
+                print('Record index', index)
+                continue
             if item['id'] in entity_set:
                     print('Repeat Record', item)
                     print('Record index', index)
@@ -140,11 +144,11 @@ def readRelationshipData(relationship_csv):
         try:
             if('id' not in item):
                 break
-            if (item['s_date']) is None or str(item['s_date']) == '\n':
+            if (item['s_date']) is None or str(item['s_date']) == '\n' or len(str(item['s_date'])) ==0:
                 dystart=None
             else:
                 dystart=parser.parse(str(item['s_date']))
-            if (item['end_date']) is None or str(item['end_date']) == '\n':
+            if (item['end_date']) is None or str(item['end_date']) == '\n'or len(str(item['end_date'])) ==0:
                 dyend=None
             else:
                 dyend=parser.parse(str(item['end_date']))
@@ -296,7 +300,7 @@ def setGeometries():
                 relationship.z3 = relationship.z1
 
                 relationship.z2 = entity_1.z2
-                relationship.z4 = enitty_2.z2
+                relationship.z4 = entity_2.z2
 
             else:
                 bottom_z = float((relationship.starting_date - starting_time).days)/n_day_duration * model_height
