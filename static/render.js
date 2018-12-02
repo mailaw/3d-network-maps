@@ -76,6 +76,7 @@ function renderCylinders(data){
       cylinder.position.y,
       cylinder.position.z
     ]);
+
     minx = Math.min(cylinder.position.x,minx);
     miny = Math.min(entity_row.z1,miny);
     minz = Math.min(cylinder.position.z,minz);
@@ -125,18 +126,14 @@ function renderCylinders(data){
   scene.add(gridYZ);
   scene.add(timeGrid);
 
-  time_line.onChange(function(value) { 
+  time_line.onChange(function(value) {
     parameters.time = miny+0.55*maxv;
     timeGrid.position.y = value;
   });
 }
 function renderPlanes(data){
-  var material = new THREE.MeshLambertMaterial({
-    color: 0x1cff44,
-    emissive: 0x1cff44,
-    transparent: true,
-    opacity: 0.8
-  });
+
+  var relationship_color_map = {};
 
   for (let index = 0; index < data.length; index++) {
     var entity_row = data[index];
@@ -171,6 +168,19 @@ function renderPlanes(data){
     geometry.faces.push(new THREE.Face3(3, 2, 0));
     geometry.computeBoundingSphere();
 
+    var relationship_type = entity_row.relationship_type;
+
+
+    if(typeof(relationship_color_map[relationship_type]) == "undefined"){
+      relationship_color_map[relationship_type] = new THREE.Color( Math.random(), Math.random(), Math.random() );
+    }
+
+    var material = new THREE.MeshLambertMaterial({
+      transparent: true,
+      opacity: 0.8,
+      color: relationship_color_map[relationship_type]
+    });
+
     var plane = new THREE.Mesh(geometry, material);
     //plane.position.x = (entity_row.x1+entity_row.x3)/2;
     //plane.position.z = (entity_row.y1+entity_row.y3)/2;
@@ -180,9 +190,7 @@ function renderPlanes(data){
     plane_list.push(plane);
   }
 
-  planeOpacity.onChange(function(value) {
-    plane.material.opacity = value;
-  });
+
   //updatePlane();
 }
 function readData(results) {
@@ -211,7 +219,7 @@ function sendToBackend(file){
               renderData(eoutput,routput);
             }
         });
-        
+
 }
 function handleFileSelect(evt) {
   var file = evt.target.files[0];
@@ -279,7 +287,7 @@ $(document).ready(function() {
   light.shadow.camera.near = 50;
   light.shadow.camera.far = 550;
   camera.add(light);
-  //add light to follow the camera 
+  //add light to follow the camera
   scene.add( camera );
 
   //Client requested to be commented out & left for future dev
@@ -311,7 +319,16 @@ $(document).ready(function() {
     .step(0.01)
     .name("Opacity")
     .listen();
+
+  planeOpacity.onChange(function(value){
+    for(let i = 0; i < plane_list.length;i++) {
+      plane_list[i].material.opacity = parameters.opacity;
+    }
+  });
+
   planeFolder.open();
+
+
 
   var cylinderFolder = gui.addFolder("Cylinders");
 
@@ -386,7 +403,7 @@ $(document).ready(function() {
         value*2,
         value*2,
         cylinder_list[i].geometry.parameters.height
-      
+
       );
     }
   });
