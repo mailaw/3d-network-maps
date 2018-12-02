@@ -35,7 +35,8 @@ var parameters = {
     resetRadius();
   }
 };
-
+var eoutput=new Object()
+var routput=new Object()
 var projector, mouse = {
   x: 0,
   y: 0
@@ -47,27 +48,11 @@ var data;
 init();
 animate();
 
-function loadFile(filePath) {
-  var result = null;
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("GET", filePath, false);
-  xmlhttp.send();
-  if (xmlhttp.status==200) {
-    result = xmlhttp.responseText;
-  }
-   Papa.parse(result, {
-    header: true,
-    dynamicTyping: true,
-    complete: function(results) {
-    result = results.data;
-  }
-  });
-  return result;
-}
+
 function renderCylinders(data){
   for (let index = 0; index < data.length-1; index++) {
     var entity_row = data[index];
-
+    console.log(entity_row.z2);
     //render cylinders
     var cylinderHeight = (entity_row.z2 - entity_row.z1)*10;
     var geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, cylinderHeight);
@@ -200,23 +185,16 @@ function renderPlanes(data){
   });
   //updatePlane();
 }
-function readEntityData(results) {
+function readData(results) {
   data = results["data"];
   sendToBackend(data);
 }
 
-function readRelationData(results) {
-      data = results["data"];
-      sendToBackend(data);
-      //load files only once both entity and relationship data have beeen processed
-      entityData = loadFile("/static/mock_entity_output.csv");
-      relationData = loadFile("/static/mock_relationship_output.csv");
-      console.log(entityData);
-      renderCylinders(entityData);
-      renderPlanes(relationData);
-
+function renderData(entityData,relationData){
+  renderCylinders(entityData);
+  renderPlanes(relationData);
+  
 }
-
 function sendToBackend(file){
     var struct = [];
     for (let index = 0; index < data.length; index++) {
@@ -225,39 +203,31 @@ function sendToBackend(file){
     $.ajax({
             type: 'POST',
             url: '/execute',
-            data: {d: JSON.stringify(struct),type:'entity'},
-            dataType: "jsonp",
-            success: function(data) {
-                console.log(data);
-            },
+            data: {d: JSON.stringify(struct)},
+            dataType: "json",
+            success: function (data) {
+              eoutput=JSON.parse(data[0]);
+              routput=JSON.parse(data[1]);
+              renderData(eoutput,routput);
+            }
         });
         
 }
-function handleEntityFileSelect(evt) {
+function handleFileSelect(evt) {
   var file = evt.target.files[0];
   Papa.parse(file, {
     header: true,
     dynamicTyping: true,
-    complete: readEntityData
-  });
-}
-
-function handleRelationFileSelect(evt) {
-  var file = evt.target.files[0];
-
-  Papa.parse(file, {
-    header: true,
-    dynamicTyping: true,
-    complete: readRelationData
+    complete: readData
   });
 }
 
 $(document).ready(function() {
-  $("#entity-csv-file").change(handleEntityFileSelect);
+  $("#entity-csv-file").change(handleFileSelect);
 });
 
 $(document).ready(function() {
-   $("#relationship-csv-file").change(handleRelationFileSelect);
+   $("#relationship-csv-file").change(handleFileSelect);
  });
 
  function init() {
