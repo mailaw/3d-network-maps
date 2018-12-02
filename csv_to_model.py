@@ -12,7 +12,7 @@ import ast
 import igraph as ig
 import numpy as np
 from dateutil import parser
-from flask import Flask, render_template, json, request,send_from_directory
+from flask import Flask, render_template, json, request
 import numpy as np
 import csv
 
