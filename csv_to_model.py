@@ -121,16 +121,10 @@ def readEntityData(entity_csv):
                 break
             dystart=parser.parse(str(item['dob']))
             dyend=parser.parse(str(item['active']))
-
-            if dystart == None or dyend == None:
-                print('Record could not be parsed', item)
-                print('Record index', index)
-                continue
-
             if item['id'] in entity_set:
-                print('Repeat Record', item)
-                print('Record index', index)
-                continue
+                    print('Repeat Record', item)
+                    print('Record index', index)
+                    continue
             else:
                 entity_list.append(Entity(item['id'],item['name'],dystart,dyend))
                 entity_set.add(item['id'])
@@ -155,20 +149,20 @@ def readRelationshipData(relationship_csv):
             else:
                 dyend=parser.parse(str(item['end_date']))
             if item['pid_1'] not in entity_set:
-                    ##print('Refers to entity not found', item['pid_1'])
-                    ##print('Record index', index)
+                    print('Refers to entity not found', item['pid_1'])
+                    print('Record index', index)
                     continue
             if item['pid_2'] not in entity_set:
-                    ##print('Refers to entity not found', item['pid_2'])
-                    ##print('Record index', index)
+                    print('Refers to entity not found', item['pid_2'])
+                    print('Record index', index)
                     continue
 
             relationship_list.append(Relationship(item['id'],item['pid_1'],item['pid_2']
                                                   ,item['relationship'],dystart,dyend))
         except ValueError:
-                ##print('Record could not be parsed', item)
-               ## print('Record index', index)
-               ## print(len(item['s_date']))
+                print('Record could not be parsed', item)
+                print('Record index', index)
+                print(len(item['s_date']))
                 continue
 
 ##1
