@@ -256,7 +256,7 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   //MOUSE
-  window.addEventListener('resize', onWindowResize, false);
+//  window.addEventListener('resize', onWindowResize, false);
   document.addEventListener('mousemove', onDocumentMouseMove, false);
   // LIGHTS
   /*helper to see direction of light
@@ -496,21 +496,27 @@ function animate() {
 }
  function onDocumentMouseMove(event) {
   // the following line would stop any other event handler from firing
-  // (such as the mouse's TrackballControls)
+  // (such as the mouse's TrackballControls)s
   // event.preventDefault();
    // update the mouse variable
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  mouse.x = (event.clientX / (window.innerWidth)) * 2 - 1;
+  mouse.y = -((event.clientY-100) / (window.innerHeight-100)) * 2 + 1;
+//    mouse.x = ( (event.clientX -renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
+//    mouse.y = -( (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
+
+//      console.log("y:"+mouse.y);
 }
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
+//  function onWindowResize() {
+//    camera.aspect = window.innerWidth / window.innerHeight;
+//    camera.updateProjectionMatrix();
+//    renderer.setSize(window.innerWidth, window.innerHeight);
+//}
  function update() {
   // find intersections
    // create a Ray with origin at the mouse position
   //   and direction into the scene (camera direction)
+//  console.log("x:"+window.innerHeight);
+//  console.log("y:"+window.innerWidth);
   camera.updateMatrixWorld();
   var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
   vector.unproject(camera);
