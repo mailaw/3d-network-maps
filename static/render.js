@@ -125,7 +125,6 @@ function renderCylinders(data){
   scene.add(gridXZ);
   scene.add(gridYZ);
   scene.add(timeGrid);
-
   time_line.onChange(function(value) {
     parameters.time = miny+0.55*maxv;
     timeGrid.position.y = value;
@@ -198,6 +197,15 @@ function readData(results) {
   sendToBackend(data);
 }
 
+function removeCylindersAndPlanes(){
+  for(let index = 0; index < cylinder_list.length; index++){
+    scene.remove(cylinder_list[index]);
+  }
+  for(let index = 0; index < plane_list.length; index++){
+    scene.remove(plane_list[index]);
+  }
+
+}
 function renderData(entityData,relationData){
   renderCylinders(entityData);
   renderPlanes(relationData);

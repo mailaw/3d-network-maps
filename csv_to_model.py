@@ -328,7 +328,7 @@ def write_entities(entity_list, csv_name):
             entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
             for entity in entity_list:
                 entity_writer.writerow(entity.get_string_representation())
-        eoutput=parse_csv('mock_entity_output.csv')
+        eoutput=parse_csv('entity_output.csv')
         os.chdir("..")
         return eoutput
 # In[13]:
@@ -359,7 +359,7 @@ def write_relationships(relationship_list, csv_name):
 
             for relationship in relationship_list:
                 relationship_writer.writerow(relationship.get_string_representation())
-        routput=parse_csv('mock_relationship_output.csv')
+        routput=parse_csv('relationship_output.csv')
         os.chdir("..")
         return routput
 
@@ -380,8 +380,8 @@ def execute():
         executedBoth = True
     setGeometries()
     if executedBoth:
-        efile=write_entities(entity_list, 'mock_entity_output')
-        rfile=write_relationships(relationship_list, 'mock_relationship_output')
+        efile=write_entities(entity_list, 'entity_output')
+        rfile=write_relationships(relationship_list, 'relationship_output')
         efile=json.dumps(efile)
         rfile=json.dumps(rfile)
         del entity_list[:]
