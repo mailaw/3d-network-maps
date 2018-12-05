@@ -12,6 +12,7 @@ import ast
 import igraph as ig
 import numpy as np
 from dateutil import parser
+import datetime
 from flask import Flask, render_template, json, request
 import numpy as np
 import csv
@@ -114,13 +115,26 @@ class Relationship:
 def readEntityData(entity_csv):
     index=1
     cntr=1
+    current_date = datetime.datetime.now()
     for item in entity_csv:
         index+=1
         try:
             if('id' not in item):
                 break
-            dystart=parser.parse(str(item['dob']))
-            dyend=parser.parse(str(item['active']))
+
+            if str(item['dob'])[0] == '~':
+                dystart=parser.parse(str(item['dob'])[-1:])
+            else:
+                dystart=parser.parse(str(item['dob']))
+
+            if str(item['active'])[0] == '~':
+                dyend=parser.parse(str(item['active'])[-1:])
+            elif str(item['active']).lower() == 'open':
+                dyend = current_date
+            else:
+                dyend=parser.parse(str(item['active']))
+
+
             if dystart == None or dyend == None:
                 print('Record could not be parsed', item)
                 print('Record index', index)
@@ -144,14 +158,20 @@ def readRelationshipData(relationship_csv):
         try:
             if('id' not in item):
                 break
-            if (item['s_date']) is None or str(item['s_date']) == '\n' or len(str(item['s_date'])) ==0:
+            if (item['s_date']) is None or str(item['s_date']) == '\n' or len(str(item['s_date'])) == 0 or str(item['s_date']).lower() == 'open' :
                 dystart=None
             else:
-                dystart=parser.parse(str(item['s_date']))
-            if (item['end_date']) is None or str(item['end_date']) == '\n'or len(str(item['end_date'])) ==0:
+                if str(item['s_date'])[0] == '~':
+                    dystart=parser.parse(str(item['s_date'])[-1:])
+                else:
+                    dystart=parser.parse(str(item['s_date']))
+            if (item['end_date']) is None or str(item['end_date']) == '\n'or len(str(item['end_date'])) ==0 or str(item['end_date']).lower() == 'open':
                 dyend=None
             else:
-                dyend=parser.parse(str(item['end_date']))
+                if str(item['end_date'])[0] == '~':
+                    dyend=parser.parse(str(item['end_date'])[-1:])
+                else:
+                    dyend=parser.parse(str(item['end_date']))
             if item['pid_1'] not in entity_set:
                     print('Refers to entity not found', item['pid_1'])
                     print('Record index', index)
@@ -301,6 +321,16 @@ def setGeometries():
 
                 relationship.z2 = entity_1.z2
                 relationship.z4 = entity_2.z2
+
+            elif relationship.ending_date is None:
+                bottom_z = float((relationship.starting_date - starting_time).days)/n_day_duration * model_height
+                top_z = min(entity_1.z2, entity_2.z2)
+
+                relationship.z1 = bottom_z
+                relationship.z3 = bottom_z
+
+                relationship.z2 = top_z
+                relationship.z4 = top_z
 
             else:
                 bottom_z = float((relationship.starting_date - starting_time).days)/n_day_duration * model_height
