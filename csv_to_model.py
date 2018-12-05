@@ -129,7 +129,7 @@ def readEntityData(entity_csv):
 
             if str(item['active'])[0] == '~':
                 dyend=parser.parse(str(item['active'])[-1:])
-            else if str(item['active']).lower() == 'open':
+            elif str(item['active']).lower() == 'open':
                 dyend = current_date
             else:
                 dyend=parser.parse(str(item['active']))
@@ -322,7 +322,7 @@ def setGeometries():
                 relationship.z2 = entity_1.z2
                 relationship.z4 = entity_2.z2
 
-            else if relationship.ending_date is None:
+            elif relationship.ending_date is None:
                 bottom_z = float((relationship.starting_date - starting_time).days)/n_day_duration * model_height
                 top_z = min(entity_1.z2, entity_2.z2)
 
