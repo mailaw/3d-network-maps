@@ -7,11 +7,15 @@
   z-index: -1;
 }
 
+.info {
+    width: 10px,
+    height: 1px;
+}
+
 #canvas-div {
   position: absolute;
   width: 80% !important;
   height: 80% !important;
-  padding: 30px !important;
   margin-left: 140px !important;
 }
 
@@ -22,10 +26,8 @@
 
 canvas#vis-window {
   position: relative !important;
-  width: 80% !important;
-  height: 80% !important;
-  padding: 30px !important;
-  margin-left: 140px !important;
+  width: 100% absolute;
+  height: 100% !important;
 }
 
 #gui-position {
@@ -67,7 +69,8 @@ header h1 {
 }
 
 #content {
-  padding: 3em 7% 3em 7%;
+  /*padding: 3em 7% 3em 7%;*/
+  padding-left: 50px
   max-width: 1200px;
   margin: 0px auto;
   overflow-x: hidden;
@@ -79,4 +82,4 @@ p {
 
 .inline{
   display: inline-block;
-} 
+}

@@ -26,6 +26,14 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 def home():
     return render_template('index.html')
 
+@app.route("/about.html")
+def about():
+    return render_template('about.html')
+
+@app.route("/sprints.html")
+def sprints():
+    return render_template('sprints.html')
+
 @app.after_request
 def add_header(response):
     """
@@ -353,11 +361,12 @@ def write_entities(entity_list, csv_name):
     output = []
     if(len(entity_list)>0 and len(relationship_list)>0):
         os.chdir("data")
-        with open(csv_name + '.csv', mode = 'w') as entity_file:
+        with open(csv_name + '.csv', mode = 'w+') as entity_file:
             entity_writer = csv.writer(entity_file)
             entity_writer.writerow(['primary_key','name','starting_date','ending_date','x','y','z1','z2'])
             for entity in entity_list:
                 entity_writer.writerow(entity.get_string_representation())
+        os.chmod("entity_output.csv", 0o777)
         eoutput=parse_csv('entity_output.csv')
         os.chdir("..")
         return eoutput

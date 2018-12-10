@@ -7,7 +7,7 @@ var camera, scene, renderer, local_canvas, controls;
 var time_line;
 var globalFolder;
 //custom vars
-var plane, planeOpacity;
+var planeOpacity;
 var cylinder, cylinderRadius;
 
 //scene data
@@ -31,8 +31,8 @@ var parameters = {
   cylinder_blue_channel: 0,
   cylinder_green_channel: 0,
   reset: function() {
-    resetPlane();
-    resetRadius();
+//    resetPlane();
+//    resetRadius();
   }
 };
 var eoutput=new Object()
@@ -52,7 +52,6 @@ animate();
 function renderCylinders(data){
   for (let index = 0; index < data.length-1; index++) {
     var entity_row = data[index];
-    console.log(entity_row.z2);
     //render cylinders
     var cylinderHeight = (entity_row.z2 - entity_row.z1)*10;
     var geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, cylinderHeight);
@@ -67,6 +66,7 @@ function renderCylinders(data){
     cylinder.position.y = (entity_row.z2 - entity_row.z1)*5 + entity_row.z1*10;
     cylinder.position.z = entity_row.y;
 
+    cylinder.type = "entity";
     cylinder.name = entity_row.name;
     cylinder.starting_date = entity_row.starting_date;
     cylinder.ending_date = entity_row.ending_date;
@@ -103,6 +103,11 @@ function renderCylinders(data){
   .listen();
 
   //axis, and grid
+  console.log("maxv:"+maxv);
+  console.log("minx:"+minx);
+  console.log("minz:"+minz);
+
+
   var axis = new THREE.AxesHelper(1.2*maxv);
   axis.position.set(minx*10,miny,minz*10);
   scene.add(axis);
@@ -181,10 +186,11 @@ function renderPlanes(data){
     });
 
     var plane = new THREE.Mesh(geometry, material);
-    //plane.position.x = (entity_row.x1+entity_row.x3)/2;
-    //plane.position.z = (entity_row.y1+entity_row.y3)/2;
-    //plane.position.y = cylinderHeight/2;
-    //plane.rotation.y = Math.atan((entity_row.z3 - entity_row.z1)/(entity_row.x3 - entity_row.x1));
+    plane.type = "relation";
+    plane.name = entity_row.relationship_type;
+    plane.starting_date = entity_row.starting_date;
+    plane.ending_date = entity_row.ending_date;
+
     scene.add(plane);
     plane_list.push(plane);
   }
@@ -207,6 +213,8 @@ function removeCylindersAndPlanes(){
 
 }
 function renderData(entityData,relationData){
+  console.log(entityData);
+  console.log(relationData);
   renderCylinders(entityData);
   renderPlanes(relationData);
   
@@ -216,7 +224,6 @@ function sendToBackend(file){
     for (let index = 0; index < data.length; index++) {
       struct.push(file[index]);
     }
-    console.log(struct);
     $.ajax({
             type: 'POST',
             url: '/execute',
@@ -279,9 +286,8 @@ $(document).ready(function() {
   document.body.appendChild(renderer.domElement);
 
   //MOUSE
+//  window.addEventListener('resize', onWindowResize, false);
   document.addEventListener('mousemove', onDocumentMouseMove, false);
-  window.addEventListener('resize', onWindowResize, false);
-
   // LIGHTS
   /*helper to see direction of light
   var helper = new THREE.CameraHelper(camera);
@@ -501,15 +507,15 @@ $(document).ready(function() {
   gui.open();
 }
 
-function updatePlane() {
-  plane.material.opacity = parameters.opacity;
-  plane.material.transparent = true;
-}
-function resetPlane() {
-  parameters.opacity = 1;
-  parameters.visible = true;
-  updatePlane();
-}
+//function updatePlane() {
+//  plane.material.opacity = parameters.opacity;
+//  plane.material.transparent = true;
+//}
+//function resetPlane() {
+//  parameters.opacity = 1;
+//  parameters.visible = true;
+//  updatePlane();
+//}
 
 function updateRadius() {
   cylinder.geometry.parameters.radiusTop = parameters.radiusTop;
@@ -529,21 +535,27 @@ function animate() {
 }
  function onDocumentMouseMove(event) {
   // the following line would stop any other event handler from firing
-  // (such as the mouse's TrackballControls)
+  // (such as the mouse's TrackballControls)s
   // event.preventDefault();
    // update the mouse variable
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  mouse.x = (event.clientX / (window.innerWidth)) * 2 - 1;
+  mouse.y = -((event.clientY-100) / (window.innerHeight-100)) * 2 + 1;
+//    mouse.x = ( (event.clientX -renderer.domElement.offsetLeft) / renderer.domElement.width ) * 2 - 1;
+//    mouse.y = -( (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height ) * 2 + 1;
+
+//      console.log("y:"+mouse.y);
 }
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
+//  function onWindowResize() {
+//    camera.aspect = window.innerWidth / window.innerHeight;
+//    camera.updateProjectionMatrix();
+//    renderer.setSize(window.innerWidth, window.innerHeight);
+//}
  function update() {
   // find intersections
    // create a Ray with origin at the mouse position
   //   and direction into the scene (camera direction)
+//  console.log("x:"+window.innerHeight);
+//  console.log("y:"+window.innerWidth);
   camera.updateMatrixWorld();
   var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
   vector.unproject(camera);
@@ -567,6 +579,7 @@ function animate() {
       // INTERSECTED.material.color.setHex(0xffff00);
       //console.log("name:"+intersects[0].object.name);
 
+      document.getElementById("display_type").innerHTML = intersects[0].object.type;
       document.getElementById("display_name").innerHTML = intersects[0].object.name;
       document.getElementById("display_starting").innerHTML = intersects[0].object.starting_date;
       document.getElementById("display_ending").innerHTML = intersects[0].object.ending_date;
