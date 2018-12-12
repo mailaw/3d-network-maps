@@ -61,10 +61,10 @@
             </label>
             <a href="/data/Cameron_Persons.csv" download><button class="ui primary huge basic blue button">Demo entity data</button></a>
             <a href="/data/Cameron_Relationships.csv" download><button class="ui primary huge basic green button">Demo relationship data</button></a>
-            
+
 
          </div>
-        <div class="info">
+        <div class="info" id = 'info-box'>
             <h2>Information</h2>
             <div>
                  <span> Type:</span>
@@ -75,10 +75,11 @@
                 <span id="display_starting"></span>
                 <span id="display_ending"></span><br>
             </div>
+            <h3>Relationship Color Map</h3>
         </div>
-        
+
     </div>
-    
+
     <div id="canvas-div">
         <div id="gui-position"></div>
         <canvas class="ui centered" id="vis-window"></canvas>
@@ -86,6 +87,8 @@
         <script type="text/javascript" src="../static/render.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.min.js"></script>
     </div>
+
+    <div id="relationship-map-div"></div>
 
 
 
