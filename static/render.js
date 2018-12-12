@@ -193,7 +193,7 @@ function renderPlanes(data){
 
       let color_str = 'rgb(' + Math.round(r_value*255) + ',' + Math.round(g_value*255) + ',' + Math.round(b_value*255) + ')';
       color_square.css('color', color_str);
-      
+
       mapping.append(color_square);
       relationship_map_div.append(mapping);
     }
@@ -602,8 +602,8 @@ function animate() {
 
       document.getElementById("display_type").innerHTML = intersects[0].object.type;
       document.getElementById("display_name").innerHTML = intersects[0].object.name;
-      document.getElementById("display_starting").innerHTML = intersects[0].object.starting_date;
-      document.getElementById("display_ending").innerHTML = intersects[0].object.ending_date;
+      document.getElementById("display_starting").innerHTML = intersects[0].object.starting_date.split(' ')[0];
+      document.getElementById("display_ending").innerHTML = intersects[0].object.ending_date.split(' ')[0];
     }
   } else // there are no intersections
   {
