@@ -92,7 +92,7 @@ function renderCylinders(data){
   maxv = Math.max(maxv*10,maxy);
 
   cylinder.geometry.parameters.radiusTop = 0.5;
-  
+
    time_folder = globalFolder.addFolder("Time");
   time_line = time_folder
   .add(parameters, "time")
@@ -127,13 +127,13 @@ function renderCylinders(data){
   scene.add(gridXZ);
   scene.add(gridYZ);
   scene.add(timeGrid);
-  
+
   time_line.onChange(function(value) {
     parameters.time = miny+0.55*maxv;
     timeGrid.position.y = value;
-    
+
   });
-  
+
 }
 
 
@@ -177,8 +177,25 @@ function renderPlanes(data){
     var relationship_type = entity_row.relationship_type;
 
 
-    if(typeof(relationship_color_map[relationship_type]) == "undefined"){
-      relationship_color_map[relationship_type] = new THREE.Color( Math.random(), Math.random(), Math.random() );
+    if(typeof(relationship_color_map[relationship_type]) == "undefined"){ //if relationship hasn't been associated with a color yet
+      // generate a random color
+      let r_value = Math.random();
+      let g_value = Math.random();
+      let b_value = Math.random();
+
+      //add the color to the relationship map
+      relationship_color_map[relationship_type] = new THREE.Color( r_value, g_value, b_value );
+
+      //add a key to the webpage so that the user knows what color goes with what type of relationship
+      let relationship_map_div = $('#info-box');
+      let mapping = $('<span>' + relationship_type + ': </span>');
+      let color_square = $('<span> &#x2589 </span>');
+
+      let color_str = 'rgb(' + Math.round(r_value*255) + ',' + Math.round(g_value*255) + ',' + Math.round(b_value*255) + ')';
+      color_square.css('color', color_str);
+      
+      mapping.append(color_square);
+      relationship_map_div.append(mapping);
     }
 
     var material = new THREE.MeshLambertMaterial({
@@ -219,7 +236,7 @@ function renderData(entityData,relationData){
   console.log(relationData);
   renderCylinders(entityData);
   renderPlanes(relationData);
-  
+
 }
 function sendToBackend(file){
     var struct = [];
@@ -257,7 +274,7 @@ $(document).ready(function() {
  });
 
  function init() {
-  // Note: must have scene, camera, renderer  
+  // Note: must have scene, camera, renderer
   //SCENE
   scene = new THREE.Scene();
   scene.background = new THREE.Color().setHSL(0.6, 0, 1);
@@ -325,11 +342,11 @@ $(document).ready(function() {
   gui.domElement.id = "gui-position";
   var customContainer = document.getElementById("gui-position");
   customContainer.appendChild(gui.domElement);
-  
+
   globalFolder = gui.addFolder("Global Options");
 
 
-  
+
   var planeFolder = gui.addFolder("Planes");
 
   planeOpacity = planeFolder
