@@ -4,7 +4,7 @@ var maxv;
 var maxx = -100, maxy = -100, maxz = -100;
 //global vars
 var camera, scene, renderer, local_canvas, controls;
-var time_line;
+var time_line, time_folder;
 var globalFolder;
 //custom vars
 var planeOpacity;
@@ -92,8 +92,8 @@ function renderCylinders(data){
   maxv = Math.max(maxv*10,maxy);
 
   cylinder.geometry.parameters.radiusTop = 0.5;
-
-  var time_folder = globalFolder.addFolder("Time");
+  
+   time_folder = globalFolder.addFolder("Time");
   time_line = time_folder
   .add(parameters, "time")
   .min(miny)
@@ -102,11 +102,8 @@ function renderCylinders(data){
   .name("Time")
   .listen();
 
+  time_folder.open();
   //axis, and grid
-  console.log("maxv:"+maxv);
-  console.log("minx:"+minx);
-  console.log("minz:"+minz);
-
 
   var axis = new THREE.AxesHelper(1.2*maxv);
   axis.position.set(minx*10,miny,minz*10);
@@ -130,11 +127,16 @@ function renderCylinders(data){
   scene.add(gridXZ);
   scene.add(gridYZ);
   scene.add(timeGrid);
+  
   time_line.onChange(function(value) {
     parameters.time = miny+0.55*maxv;
     timeGrid.position.y = value;
+    
   });
+  
 }
+
+
 function renderPlanes(data){
 
   var relationship_color_map = {};
@@ -255,8 +257,7 @@ $(document).ready(function() {
  });
 
  function init() {
-  // Note: must have scene, camera, renderer
-
+  // Note: must have scene, camera, renderer  
   //SCENE
   scene = new THREE.Scene();
   scene.background = new THREE.Color().setHSL(0.6, 0, 1);
@@ -324,7 +325,11 @@ $(document).ready(function() {
   gui.domElement.id = "gui-position";
   var customContainer = document.getElementById("gui-position");
   customContainer.appendChild(gui.domElement);
+  
+  globalFolder = gui.addFolder("Global Options");
 
+
+  
   var planeFolder = gui.addFolder("Planes");
 
   planeOpacity = planeFolder
@@ -423,7 +428,6 @@ $(document).ready(function() {
     }
   });
 
-  globalFolder = gui.addFolder("Global Options");
 
   scaleFactor = globalFolder
     .add(parameters, "scale")
